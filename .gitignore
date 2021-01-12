@@ -116,6 +116,9 @@ tests/utils.h
 tests/write_read_test.c
 *.log
 *.trs
+*.~c
+*.~c
+*.~h
 .vs/
 packages/
 *.vcxproj.user
