@@ -526,28 +526,28 @@ d2i_clip_array (const double *src, int count, int *dest, double scale)
 		} ;
 } /* d2i_clip_array */
 
-static inline void
+static void
 d2f_array (const double *src, int count, float *dest)
 {	while (--count >= 0)
 	{	dest [count] = src [count] ;
 		} ;
 } /* d2f_array */
 
-static inline void
+static void
 s2d_array (const short *src, double *dest, int count, double scale)
 {	while (--count >= 0)
 	{	dest [count] = scale * src [count] ;
 		} ;
 } /* s2d_array */
 
-static inline void
+static void
 i2d_array (const int *src, double *dest, int count, double scale)
 {	while (--count >= 0)
 	{	dest [count] = scale * src [count] ;
 		} ;
 } /* i2d_array */
 
-static inline void
+static void
 f2d_array (const float *src, double *dest, int count)
 {	while (--count >= 0)
 	{	dest [count] = src [count] ;

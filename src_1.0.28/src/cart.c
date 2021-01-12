@@ -28,7 +28,7 @@
 
 
 
-static inline size_t
+static size_t
 cart_min_size (const SF_CART_INFO* info)
 {	if (info == NULL)
 		return 0 ;

@@ -40,21 +40,21 @@
 /*------------------------------------------------------------------------------
 ** Macros to handle big/little endian issues.
 */
-#define	RF64_MARKER		MAKE_MARKER ('R', 'F', '6', '4')
-#define	RIFF_MARKER		MAKE_MARKER ('R', 'I', 'F', 'F')
-#define	JUNK_MARKER		MAKE_MARKER ('J', 'U', 'N', 'K')
-#define	FFFF_MARKER		MAKE_MARKER (0xff, 0xff, 0xff, 0xff)
-#define	WAVE_MARKER		MAKE_MARKER ('W', 'A', 'V', 'E')
-#define	ds64_MARKER		MAKE_MARKER ('d', 's', '6', '4')
-#define	fmt_MARKER		MAKE_MARKER ('f', 'm', 't', ' ')
-#define	fact_MARKER		MAKE_MARKER ('f', 'a', 'c', 't')
-#define	data_MARKER		MAKE_MARKER ('d', 'a', 't', 'a')
+#define	RF64_MARKER		875972178
+#define	RIFF_MARKER		1179011410
+#define	JUNK_MARKER		1263424842
+#define	FFFF_MARKER		0xffffffff
+#define	WAVE_MARKER		1163280727
+#define	ds64_MARKER		875983716
+#define	fmt_MARKER		544501094
+#define	fact_MARKER		1952670054
+#define	data_MARKER		1635017060
 
-#define bext_MARKER		MAKE_MARKER ('b', 'e', 'x', 't')
-#define cart_MARKER		MAKE_MARKER ('c', 'a', 'r', 't')
-#define OggS_MARKER		MAKE_MARKER ('O', 'g', 'g', 'S')
-#define wvpk_MARKER		MAKE_MARKER ('w', 'v', 'p', 'k')
-#define LIST_MARKER		MAKE_MARKER ('L', 'I', 'S', 'T')
+#define bext_MARKER		1954047330
+#define cart_MARKER		1953653091
+#define OggS_MARKER		1399285583
+#define wvpk_MARKER		1802532471
+#define LIST_MARKER		1414744396
 
 /*
 ** The file size limit in bytes below which we can, if requested, write this

@@ -33,8 +33,8 @@
 ** Macros to handle big/little endian issues.
 */
 
-#define FAP_MARKER	(MAKE_MARKER ('f', 'a', 'p', ' '))
-#define PAF_MARKER	(MAKE_MARKER (' ', 'p', 'a', 'f'))
+#define FAP_MARKER	544235878
+#define PAF_MARKER	1717661728
 
 /*------------------------------------------------------------------------------
 ** Other defines.

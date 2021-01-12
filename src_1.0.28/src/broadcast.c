@@ -28,7 +28,7 @@
 
 static int gen_coding_history (char * added_history, int added_history_max, const SF_INFO * psfinfo) ;
 
-static inline size_t
+static size_t
 bc_min_size (const SF_BROADCAST_INFO* info)
 {	if (info == NULL)
 		return 0 ;

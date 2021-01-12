@@ -112,12 +112,12 @@ void private_init_state (G72x_STATE *state_ptr) ;
 #define ALWAYS_INLINE
 #endif
 
-static inline int ALWAYS_INLINE
+static int ALWAYS_INLINE
 arith_shift_left (int x, int shift)
 {	return (int) (((unsigned int) x) << shift) ;
 } /* arith_shift_left */
 
-static inline int ALWAYS_INLINE
+static int ALWAYS_INLINE
 arith_shift_right (int x, int shift)
 {	if (x >= 0)
 		return x << shift ;

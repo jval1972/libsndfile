@@ -17,6 +17,7 @@
 */
 
 #include "sfconfig.h"
+#include "sfendian.h"
 
 #include <stdio.h>
 #include <stdlib.h>

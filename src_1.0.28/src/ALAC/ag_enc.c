@@ -56,7 +56,7 @@
 */
 
 // note: implementing this with some kind of "count leading zeros" assembly is a big performance win
-static inline int32_t lead (int32_t m)
+static int32_t lead (int32_t m)
 {
 	long j ;
 	unsigned long c = (1ul << 31) ;
@@ -72,7 +72,7 @@ static inline int32_t lead (int32_t m)
 
 #define arithmin (a, b) ((a) < (b) ? (a) : (b))
 
-static inline int32_t ALWAYS_INLINE lg3a (int32_t x)
+static int32_t ALWAYS_INLINE lg3a (int32_t x)
 {
 	int32_t result ;
 
@@ -82,7 +82,7 @@ static inline int32_t ALWAYS_INLINE lg3a (int32_t x)
 	return 31 - result ;
 }
 
-static inline int32_t ALWAYS_INLINE abs_func (int32_t a)
+static int32_t ALWAYS_INLINE abs_func (int32_t a)
 {
 	// note: the CW PPC intrinsic __abs () turns into these instructions so no need to try and use it
 	int32_t isneg = a >> 31 ;
@@ -96,7 +96,7 @@ static inline int32_t ALWAYS_INLINE abs_func (int32_t a)
 #pragma mark -
 #endif
 
-static inline int32_t dyn_code (int32_t m, int32_t k, int32_t n, uint32_t *outNumBits)
+static int32_t dyn_code (int32_t m, int32_t k, int32_t n, uint32_t *outNumBits)
 {
 	uint32_t 	divx, mod, de ;
 	uint32_t	numBits ;
@@ -132,7 +132,7 @@ static inline int32_t dyn_code (int32_t m, int32_t k, int32_t n, uint32_t *outNu
 }
 
 
-static inline int32_t dyn_code_32bit (int32_t maxbits, uint32_t m, uint32_t k, uint32_t n, uint32_t *outNumBits, uint32_t *outValue, uint32_t *overflow, uint32_t *overflowbits)
+static int32_t dyn_code_32bit (int32_t maxbits, uint32_t m, uint32_t k, uint32_t n, uint32_t *outNumBits, uint32_t *outValue, uint32_t *overflow, uint32_t *overflowbits)
 {
 	uint32_t 	divx, mod, de ;
 	uint32_t	numBits ;
@@ -168,7 +168,7 @@ codeasescape:
 }
 
 
-static inline void ALWAYS_INLINE dyn_jam_noDeref (unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
+static void ALWAYS_INLINE dyn_jam_noDeref (unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
 {
 	uint32_t	mask ;
 	uint32_t	curr ;
@@ -190,7 +190,7 @@ static inline void ALWAYS_INLINE dyn_jam_noDeref (unsigned char *out, uint32_t b
 }
 
 
-static inline void ALWAYS_INLINE dyn_jam_noDeref_large (unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
+static void ALWAYS_INLINE dyn_jam_noDeref_large (unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
 {
 	uint32_t	w ;
 	uint32_t	curr ;

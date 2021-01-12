@@ -24,7 +24,7 @@
 #include	<string.h>
 #include	<ctype.h>
 #include	<time.h>
-#include	<inttypes.h>
+#include	<stdint.h>
 
 #include	"sndfile.h"
 #include	"sfendian.h"
@@ -35,43 +35,43 @@
  * Macros to handle big/little endian issues.
  */
 
-#define RIFF_MARKER		(MAKE_MARKER ('R', 'I', 'F', 'F'))
-#define RIFX_MARKER		(MAKE_MARKER ('R', 'I', 'F', 'X'))
-#define WAVE_MARKER		(MAKE_MARKER ('W', 'A', 'V', 'E'))
-#define fmt_MARKER		(MAKE_MARKER ('f', 'm', 't', ' '))
-#define fact_MARKER		(MAKE_MARKER ('f', 'a', 'c', 't'))
+#define RIFF_MARKER		1179011410
+#define RIFX_MARKER		1481001298
+#define WAVE_MARKER		1163280727
+#define fmt_MARKER		544501094
+#define fact_MARKER		1952670054
 
-#define cue_MARKER		(MAKE_MARKER ('c', 'u', 'e', ' '))
-#define slnt_MARKER		(MAKE_MARKER ('s', 'l', 'n', 't'))
-#define wavl_MARKER		(MAKE_MARKER ('w', 'a', 'v', 'l'))
-#define plst_MARKER		(MAKE_MARKER ('p', 'l', 's', 't'))
-#define smpl_MARKER		(MAKE_MARKER ('s', 'm', 'p', 'l'))
-#define iXML_MARKER		(MAKE_MARKER ('i', 'X', 'M', 'L'))
-#define levl_MARKER		(MAKE_MARKER ('l', 'e', 'v', 'l'))
-#define MEXT_MARKER		(MAKE_MARKER ('M', 'E', 'X', 'T'))
-#define acid_MARKER		(MAKE_MARKER ('a', 'c', 'i', 'd'))
-#define strc_MARKER		(MAKE_MARKER ('s', 't', 'r', 'c'))
-#define afsp_MARKER		(MAKE_MARKER ('a', 'f', 's', 'p'))
-#define clm_MARKER		(MAKE_MARKER ('c', 'l', 'm', ' '))
-#define elmo_MARKER		(MAKE_MARKER ('e', 'l', 'm', 'o'))
-#define FLLR_MARKER		(MAKE_MARKER ('F', 'L', 'L', 'R'))
+#define cue_MARKER		543520099
+#define slnt_MARKER		1953393779
+#define wavl_MARKER		1819697527
+#define plst_MARKER		1953721456
+#define smpl_MARKER		1819307379
+#define iXML_MARKER		1280137321
+#define levl_MARKER		1819698540
+#define MEXT_MARKER		1415071053
+#define acid_MARKER		1684628321
+#define strc_MARKER		1668445299
+#define afsp_MARKER		1886611041
+#define clm_MARKER		544042083
+#define elmo_MARKER		1869442149
+#define FLLR_MARKER		1380731974
 
-#define minf_MARKER		(MAKE_MARKER ('m', 'i', 'n', 'f'))
-#define elm1_MARKER		(MAKE_MARKER ('e', 'l', 'm', '1'))
-#define regn_MARKER		(MAKE_MARKER ('r', 'e', 'g', 'n'))
-#define ovwf_MARKER		(MAKE_MARKER ('o', 'v', 'w', 'f'))
-#define umid_MARKER		(MAKE_MARKER ('u', 'm', 'i', 'd'))
-#define SyLp_MARKER		(MAKE_MARKER ('S', 'y', 'L', 'p'))
-#define Cr8r_MARKER		(MAKE_MARKER ('C', 'r', '8', 'r'))
-#define JUNK_MARKER		(MAKE_MARKER ('J', 'U', 'N', 'K'))
-#define PMX_MARKER		(MAKE_MARKER ('_', 'P', 'M', 'X'))
-#define inst_MARKER		(MAKE_MARKER ('i', 'n', 's', 't'))
-#define AFAn_MARKER		(MAKE_MARKER ('A', 'F', 'A', 'n'))
+#define minf_MARKER		1718511981
+#define elm1_MARKER		829254757
+#define regn_MARKER		1852269938
+#define ovwf_MARKER		1719105135
+#define umid_MARKER		1684630901
+#define SyLp_MARKER		1884059987
+#define Cr8r_MARKER		1916301891
+#define JUNK_MARKER		1263424842
+#define PMX_MARKER		1481461855
+#define inst_MARKER		1953721961
+#define AFAn_MARKER		1849771585
 
 
 /* Weird WAVPACK marker which can show up at the start of the DATA section. */
-#define wvpk_MARKER (MAKE_MARKER ('w', 'v', 'p', 'k'))
-#define OggS_MARKER (MAKE_MARKER ('O', 'g', 'g', 'S'))
+#define wvpk_MARKER 1802532471
+#define OggS_MARKER 1399285583
 
 #define WAVLIKE_PEAK_CHUNK_SIZE(ch) 	(2 * sizeof (int) + ch * (sizeof (float) + sizeof (int)))
 

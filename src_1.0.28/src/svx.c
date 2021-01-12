@@ -32,20 +32,20 @@
  * Macros to handle big/little endian issues.
 */
 
-#define FORM_MARKER	(MAKE_MARKER ('F', 'O', 'R', 'M'))
-#define SVX8_MARKER	(MAKE_MARKER ('8', 'S', 'V', 'X'))
-#define SV16_MARKER	(MAKE_MARKER ('1', '6', 'S', 'V'))
-#define VHDR_MARKER	(MAKE_MARKER ('V', 'H', 'D', 'R'))
-#define BODY_MARKER	(MAKE_MARKER ('B', 'O', 'D', 'Y'))
+#define FORM_MARKER	1297239878
+#define SVX8_MARKER	1482052408
+#define SV16_MARKER	1448293937
+#define VHDR_MARKER	1380206678
+#define BODY_MARKER	1497648962
 
-#define ATAK_MARKER	(MAKE_MARKER ('A', 'T', 'A', 'K'))
-#define RLSE_MARKER	(MAKE_MARKER ('R', 'L', 'S', 'E'))
+#define ATAK_MARKER	1262572609
+#define RLSE_MARKER	1163086930
 
-#define c_MARKER	(MAKE_MARKER ('(', 'c', ')', ' '))
-#define NAME_MARKER	(MAKE_MARKER ('N', 'A', 'M', 'E'))
-#define AUTH_MARKER	(MAKE_MARKER ('A', 'U', 'T', 'H'))
-#define ANNO_MARKER	(MAKE_MARKER ('A', 'N', 'N', 'O'))
-#define CHAN_MARKER	(MAKE_MARKER ('C', 'H', 'A', 'N'))
+#define c_MARKER	545088379
+#define NAME_MARKER	1162690894
+#define AUTH_MARKER	1213486401
+#define ANNO_MARKER	1330531905
+#define CHAN_MARKER	1312901187
 
 /*------------------------------------------------------------------------------
  * Typedefs for file chunks.

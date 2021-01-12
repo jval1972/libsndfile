@@ -456,14 +456,14 @@ f2s_clip_array (const float *src, int count, short *dest, float scale)
 		} ;
 } /* f2s_clip_array */
 
-static inline void
+static void
 f2i_array (const float *src, int count, int *dest, float scale)
 {	while (--count >= 0)
 	{	dest [count] = lrintf (scale * src [count]) ;
 		} ;
 } /* f2i_array */
 
-static inline void
+static void
 f2i_clip_array (const float *src, int count, int *dest, float scale)
 {	while (--count >= 0)
 	{	float tmp = scale * src [count] ;
@@ -477,28 +477,28 @@ f2i_clip_array (const float *src, int count, int *dest, float scale)
 		} ;
 } /* f2i_clip_array */
 
-static inline void
+static void
 f2d_array (const float *src, int count, double *dest)
 {	while (--count >= 0)
 	{	dest [count] = src [count] ;
 		} ;
 } /* f2d_array */
 
-static inline void
+static void
 s2f_array (const short *src, float *dest, int count, float scale)
 {	while (--count >= 0)
 	{	dest [count] = scale * src [count] ;
 		} ;
 } /* s2f_array */
 
-static inline void
+static void
 i2f_array (const int *src, float *dest, int count, float scale)
 {	while (--count >= 0)
 	{	dest [count] = scale * src [count] ;
 		} ;
 } /* i2f_array */
 
-static inline void
+static void
 d2f_array (const double *src, float *dest, int count)
 {	while (--count >= 0)
 	{	dest [count] = src [count] ;

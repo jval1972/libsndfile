@@ -42,13 +42,13 @@
  * Markers.
 */
 
-#define	Sd2f_MARKER			MAKE_MARKER ('S', 'd', '2', 'f')
-#define	Sd2a_MARKER			MAKE_MARKER ('S', 'd', '2', 'a')
-#define	ALCH_MARKER			MAKE_MARKER ('A', 'L', 'C', 'H')
-#define lsf1_MARKER			MAKE_MARKER ('l', 's', 'f', '1')
+#define	Sd2f_MARKER			1714578515
+#define	Sd2a_MARKER			1630692435
+#define	ALCH_MARKER			1212369985
+#define lsf1_MARKER			828797804
 
-#define STR_MARKER			MAKE_MARKER ('S', 'T', 'R', ' ')
-#define sdML_MARKER			MAKE_MARKER ('s', 'd', 'M', 'L')
+#define STR_MARKER			542266451
+#define sdML_MARKER			1280140403
 
 enum
 {	RSRC_STR = 111,
@@ -309,7 +309,7 @@ sd2_write_rsrc_fork (SF_PRIVATE *psf, int UNUSED (calc_length))
 /*------------------------------------------------------------------------------
 */
 
-static inline int
+static int
 read_rsrc_char (const SD2_RSRC *prsrc, int offset)
 {	const unsigned char * data = prsrc->rsrc_data ;
 	if (offset < 0 || offset >= prsrc->rsrc_len)
@@ -317,7 +317,7 @@ read_rsrc_char (const SD2_RSRC *prsrc, int offset)
 	return data [offset] ;
 } /* read_rsrc_char */
 
-static inline int
+static int
 read_rsrc_short (const SD2_RSRC *prsrc, int offset)
 {	const unsigned char * data = prsrc->rsrc_data ;
 	if (offset < 0 || offset + 1 >= prsrc->rsrc_len)
@@ -325,7 +325,7 @@ read_rsrc_short (const SD2_RSRC *prsrc, int offset)
 	return (data [offset] << 8) + data [offset + 1] ;
 } /* read_rsrc_short */
 
-static inline int
+static int
 read_rsrc_int (const SD2_RSRC *prsrc, int offset)
 {	const unsigned char * data = prsrc->rsrc_data ;
 	if (offset < 0 || offset + 3 >= prsrc->rsrc_len)
@@ -333,7 +333,7 @@ read_rsrc_int (const SD2_RSRC *prsrc, int offset)
 	return (((uint32_t) data [offset]) << 24) + (data [offset + 1] << 16) + (data [offset + 2] << 8) + data [offset + 3] ;
 } /* read_rsrc_int */
 
-static inline int
+static int
 read_rsrc_marker (const SD2_RSRC *prsrc, int offset)
 {	const unsigned char * data = prsrc->rsrc_data ;
 

@@ -26,7 +26,7 @@
 #include	"sfendian.h"
 #include	"common.h"
 
-#define	STR_MARKER	MAKE_MARKER ('S', 'T', 'R', ' ')
+#define	STR_MARKER	542266451
 
 int
 macos_guess_file_type (SF_PRIVATE * psf, const char *filename)

@@ -25,7 +25,7 @@
 #include "sfendian.h"
 #include "common.h"
 
-#define TWOBIT_MARKER	(MAKE_MARKER ('2', 'B', 'I', 'T'))
+#define TWOBIT_MARKER	1414087218
 #define	AVR_HDR_SIZE	128
 
 #define	SFE_AVR_X	666

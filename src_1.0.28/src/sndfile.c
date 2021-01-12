@@ -53,6 +53,11 @@ typedef struct
 	const char	*str ;
 } ErrorStruct ;
 
+int MAKE_MARKER_FUNC(int a, int b, int c, int d)
+{
+  return a + (b << 8) + (c << 16) + (d << 24);
+}
+
 static
 ErrorStruct SndfileErrors [] =
 {
@@ -297,23 +302,27 @@ static char	sf_syserr [SF_SYSERR_LEN] = { 0 } ;
 /*------------------------------------------------------------------------------
 */
 
-#define	VALIDATE_SNDFILE_AND_ASSIGN_PSF(a, b, c)	\
-		{	if ((a) == NULL)						\
-			{	sf_errno = SFE_BAD_SNDFILE_PTR ;	\
-				return 0 ;							\
-				} ;									\
-			(b) = (SF_PRIVATE*) (a) ;				\
-			if ((b)->virtual_io == SF_FALSE &&		\
-				psf_file_valid (b) == 0)			\
-			{	(b)->error = SFE_BAD_FILE_PTR ;		\
-				return 0 ;							\
-				} ;									\
-			if ((b)->Magick != SNDFILE_MAGICK)		\
-			{	(b)->error = SFE_BAD_SNDFILE_PTR ;	\
-				return 0 ;							\
-				} ;									\
-			if (c) (b)->error = 0 ;					\
-			}
+int VALIDATE_SNDFILE_AND_ASSIGN_PSF(SNDFILE *a, SF_PRIVATE **b, int c)
+{
+  if ((a) == NULL)
+    {	sf_errno = SFE_BAD_SNDFILE_PTR ;
+        return 0 ;
+    } ;
+    *b = (SF_PRIVATE*) (a) ;
+    if ((*b)->virtual_io == SF_FALSE &&
+        psf_file_valid (*b) == 0)
+    {
+        (*b)->error = SFE_BAD_FILE_PTR ;
+        return 0 ;
+    } ;
+    if ((*b)->Magick != SNDFILE_MAGICK)
+    {
+        (*b)->error = SFE_BAD_SNDFILE_PTR ;
+        return 0 ;
+    } ;
+    if (c) (*b)->error = 0 ;
+    return 1;
+}
 
 /*------------------------------------------------------------------------------
 **	Public functions.
@@ -424,7 +433,7 @@ int
 sf_close	(SNDFILE *sndfile)
 {	SF_PRIVATE	*psf ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if (!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	return psf_close (psf) ;
 } /* sf_close */
@@ -505,7 +514,7 @@ sf_error (SNDFILE *sndfile)
 	if (sndfile == NULL)
 		return sf_errno ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 0) ;
+	if (!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 0)) {return 0;} ;
 
 	if (psf->error)
 		return psf->error ;
@@ -526,7 +535,7 @@ sf_perror (SNDFILE *sndfile)
 	{	errnum = sf_errno ;
 		}
 	else
-	{	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 0) ;
+	{	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 0)) {return 0;};
 		errnum = psf->error ;
 		} ;
 
@@ -550,7 +559,7 @@ sf_error_str (SNDFILE *sndfile, char *str, size_t maxlen)
 	if (sndfile == NULL)
 		errnum = sf_errno ;
 	else
-	{	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 0) ;
+	{	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 0)) {return 0;};
 		errnum = psf->error ;
 		} ;
 
@@ -951,7 +960,7 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 		return strlen (data) ;
 		} ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	switch (command)
 	{	case SFC_SET_NORM_FLOAT :
@@ -1394,7 +1403,7 @@ sf_seek	(SNDFILE *sndfile, sf_count_t offset, int whence)
 {	SF_PRIVATE 	*psf ;
 	sf_count_t	seek_from_start = 0, retval ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (! psf->sf.seekable)
 	{	psf->error = SFE_NOT_SEEKABLE ;
@@ -1525,7 +1534,7 @@ int
 sf_set_string (SNDFILE *sndfile, int str_type, const char* str)
 {	SF_PRIVATE 	*psf ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	return psf_set_string (psf, str_type, str) ;
 } /* sf_get_string */
@@ -1588,7 +1597,7 @@ sf_read_raw		(SNDFILE *sndfile, void *ptr, sf_count_t bytes)
 	if (bytes == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	bytewidth = (psf->bytewidth > 0) ? psf->bytewidth : 1 ;
 	blockwidth = (psf->blockwidth > 0) ? psf->blockwidth : 1 ;
@@ -1640,7 +1649,7 @@ sf_read_short	(SNDFILE *sndfile, short *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1696,7 +1705,7 @@ sf_readf_short		(SNDFILE *sndfile, short *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1750,7 +1759,7 @@ sf_read_int		(SNDFILE *sndfile, int *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1806,7 +1815,7 @@ sf_readf_int	(SNDFILE *sndfile, int *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1860,7 +1869,7 @@ sf_read_float	(SNDFILE *sndfile, float *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1916,7 +1925,7 @@ sf_readf_float	(SNDFILE *sndfile, float *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -1970,7 +1979,7 @@ sf_read_double	(SNDFILE *sndfile, double *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2026,7 +2035,7 @@ sf_readf_double	(SNDFILE *sndfile, double *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2081,7 +2090,7 @@ sf_write_raw	(SNDFILE *sndfile, const void *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2140,7 +2149,7 @@ sf_write_short	(SNDFILE *sndfile, const short *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2198,7 +2207,7 @@ sf_writef_short	(SNDFILE *sndfile, const short *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2254,7 +2263,7 @@ sf_write_int	(SNDFILE *sndfile, const int *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2312,7 +2321,7 @@ sf_writef_int	(SNDFILE *sndfile, const int *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2368,7 +2377,7 @@ sf_write_float	(SNDFILE *sndfile, const float *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2426,7 +2435,7 @@ sf_writef_float	(SNDFILE *sndfile, const float *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2482,7 +2491,7 @@ sf_write_double	(SNDFILE *sndfile, const double *ptr, sf_count_t len)
 	if (len == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (len <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2540,7 +2549,7 @@ sf_writef_double	(SNDFILE *sndfile, const double *ptr, sf_count_t frames)
 	if (frames == 0)
 		return 0 ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (frames <= 0)
 	{	psf->error = SFE_NEGATIVE_RW_LEN ;
@@ -2673,98 +2682,98 @@ guess_file_type (SF_PRIVATE *psf)
 		return 0 ;
 		} ;
 
-	if ((buffer [0] == MAKE_MARKER ('R', 'I', 'F', 'F') || buffer [0] == MAKE_MARKER ('R', 'I', 'F', 'X'))
-			&& buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
+	if ((buffer [0] == MAKE_MARKER_FUNC ('R', 'I', 'F', 'F') || buffer [0] == MAKE_MARKER_FUNC ('R', 'I', 'F', 'X'))
+			&& buffer [2] == MAKE_MARKER_FUNC ('W', 'A', 'V', 'E'))
 		return SF_FORMAT_WAV ;
 
-	if (buffer [0] == MAKE_MARKER ('F', 'O', 'R', 'M'))
-	{	if (buffer [2] == MAKE_MARKER ('A', 'I', 'F', 'F') || buffer [2] == MAKE_MARKER ('A', 'I', 'F', 'C'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('F', 'O', 'R', 'M'))
+	{	if (buffer [2] == MAKE_MARKER_FUNC ('A', 'I', 'F', 'F') || buffer [2] == MAKE_MARKER_FUNC ('A', 'I', 'F', 'C'))
 			return SF_FORMAT_AIFF ;
-		if (buffer [2] == MAKE_MARKER ('8', 'S', 'V', 'X') || buffer [2] == MAKE_MARKER ('1', '6', 'S', 'V'))
+		if (buffer [2] == MAKE_MARKER_FUNC ('8', 'S', 'V', 'X') || buffer [2] == MAKE_MARKER_FUNC ('1', '6', 'S', 'V'))
 			return SF_FORMAT_SVX ;
 		return 0 ;
 		} ;
 
-	if (buffer [0] == MAKE_MARKER ('.', 's', 'n', 'd') || buffer [0] == MAKE_MARKER ('d', 'n', 's', '.'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('.', 's', 'n', 'd') || buffer [0] == MAKE_MARKER_FUNC ('d', 'n', 's', '.'))
 		return SF_FORMAT_AU ;
 
-	if ((buffer [0] == MAKE_MARKER ('f', 'a', 'p', ' ') || buffer [0] == MAKE_MARKER (' ', 'p', 'a', 'f')))
+	if ((buffer [0] == MAKE_MARKER_FUNC ('f', 'a', 'p', ' ') || buffer [0] == MAKE_MARKER_FUNC (' ', 'p', 'a', 'f')))
 		return SF_FORMAT_PAF ;
 
-	if (buffer [0] == MAKE_MARKER ('N', 'I', 'S', 'T'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('N', 'I', 'S', 'T'))
 		return SF_FORMAT_NIST ;
 
-	if (buffer [0] == MAKE_MARKER ('C', 'r', 'e', 'a') && buffer [1] == MAKE_MARKER ('t', 'i', 'v', 'e'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('C', 'r', 'e', 'a') && buffer [1] == MAKE_MARKER_FUNC ('t', 'i', 'v', 'e'))
 		return SF_FORMAT_VOC ;
 
-	if ((buffer [0] & MAKE_MARKER (0xFF, 0xFF, 0xF8, 0xFF)) == MAKE_MARKER (0x64, 0xA3, 0x00, 0x00) ||
-		(buffer [0] & MAKE_MARKER (0xFF, 0xF8, 0xFF, 0xFF)) == MAKE_MARKER (0x00, 0x00, 0xA3, 0x64))
+	if ((buffer [0] & MAKE_MARKER_FUNC (0xFF, 0xFF, 0xF8, 0xFF)) == MAKE_MARKER_FUNC (0x64, 0xA3, 0x00, 0x00) ||
+		(buffer [0] & MAKE_MARKER_FUNC (0xFF, 0xF8, 0xFF, 0xFF)) == MAKE_MARKER_FUNC (0x00, 0x00, 0xA3, 0x64))
 		return SF_FORMAT_IRCAM ;
 
-	if (buffer [0] == MAKE_MARKER ('r', 'i', 'f', 'f'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('r', 'i', 'f', 'f'))
 		return SF_FORMAT_W64 ;
 
-	if (buffer [0] == MAKE_MARKER (0, 0, 0x03, 0xE8) && buffer [1] == MAKE_MARKER (0, 0, 0, 1) &&
-								buffer [2] == MAKE_MARKER (0, 0, 0, 1))
+	if (buffer [0] == MAKE_MARKER_FUNC (0, 0, 0x03, 0xE8) && buffer [1] == MAKE_MARKER_FUNC (0, 0, 0, 1) &&
+								buffer [2] == MAKE_MARKER_FUNC (0, 0, 0, 1))
 		return SF_FORMAT_MAT4 ;
 
-	if (buffer [0] == MAKE_MARKER (0, 0, 0, 0) && buffer [1] == MAKE_MARKER (1, 0, 0, 0) &&
-								buffer [2] == MAKE_MARKER (1, 0, 0, 0))
+	if (buffer [0] == MAKE_MARKER_FUNC (0, 0, 0, 0) && buffer [1] == MAKE_MARKER_FUNC (1, 0, 0, 0) &&
+								buffer [2] == MAKE_MARKER_FUNC (1, 0, 0, 0))
 		return SF_FORMAT_MAT4 ;
 
-	if (buffer [0] == MAKE_MARKER ('M', 'A', 'T', 'L') && buffer [1] == MAKE_MARKER ('A', 'B', ' ', '5'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('M', 'A', 'T', 'L') && buffer [1] == MAKE_MARKER_FUNC ('A', 'B', ' ', '5'))
 		return SF_FORMAT_MAT5 ;
 
-	if (buffer [0] == MAKE_MARKER ('P', 'V', 'F', '1'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('P', 'V', 'F', '1'))
 		return SF_FORMAT_PVF ;
 
-	if (buffer [0] == MAKE_MARKER ('E', 'x', 't', 'e') && buffer [1] == MAKE_MARKER ('n', 'd', 'e', 'd') &&
-								buffer [2] == MAKE_MARKER (' ', 'I', 'n', 's'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('E', 'x', 't', 'e') && buffer [1] == MAKE_MARKER_FUNC ('n', 'd', 'e', 'd') &&
+								buffer [2] == MAKE_MARKER_FUNC (' ', 'I', 'n', 's'))
 		return SF_FORMAT_XI ;
 
-	if (buffer [0] == MAKE_MARKER ('c', 'a', 'f', 'f') && buffer [2] == MAKE_MARKER ('d', 'e', 's', 'c'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('c', 'a', 'f', 'f') && buffer [2] == MAKE_MARKER_FUNC ('d', 'e', 's', 'c'))
 		return SF_FORMAT_CAF ;
 
-	if (buffer [0] == MAKE_MARKER ('O', 'g', 'g', 'S'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('O', 'g', 'g', 'S'))
 		return SF_FORMAT_OGG ;
 
-	if (buffer [0] == MAKE_MARKER ('A', 'L', 'a', 'w') && buffer [1] == MAKE_MARKER ('S', 'o', 'u', 'n')
-			&& buffer [2] == MAKE_MARKER ('d', 'F', 'i', 'l'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('A', 'L', 'a', 'w') && buffer [1] == MAKE_MARKER_FUNC ('S', 'o', 'u', 'n')
+			&& buffer [2] == MAKE_MARKER_FUNC ('d', 'F', 'i', 'l'))
 		return SF_FORMAT_WVE ;
 
-	if (buffer [0] == MAKE_MARKER ('D', 'i', 'a', 'm') && buffer [1] == MAKE_MARKER ('o', 'n', 'd', 'W')
-			&& buffer [2] == MAKE_MARKER ('a', 'r', 'e', ' '))
+	if (buffer [0] == MAKE_MARKER_FUNC ('D', 'i', 'a', 'm') && buffer [1] == MAKE_MARKER_FUNC ('o', 'n', 'd', 'W')
+			&& buffer [2] == MAKE_MARKER_FUNC ('a', 'r', 'e', ' '))
 		return SF_FORMAT_DWD ;
 
-	if (buffer [0] == MAKE_MARKER ('L', 'M', '8', '9') || buffer [0] == MAKE_MARKER ('5', '3', 0, 0))
+	if (buffer [0] == MAKE_MARKER_FUNC ('L', 'M', '8', '9') || buffer [0] == MAKE_MARKER_FUNC ('5', '3', 0, 0))
 		return SF_FORMAT_TXW ;
 
-	if ((buffer [0] & MAKE_MARKER (0xFF, 0xFF, 0x80, 0xFF)) == MAKE_MARKER (0xF0, 0x7E, 0, 0x01))
+	if ((buffer [0] & MAKE_MARKER_FUNC (0xFF, 0xFF, 0x80, 0xFF)) == MAKE_MARKER_FUNC (0xF0, 0x7E, 0, 0x01))
 		return SF_FORMAT_SDS ;
 
-	if ((buffer [0] & MAKE_MARKER (0xFF, 0xFF, 0, 0)) == MAKE_MARKER (1, 4, 0, 0))
+	if ((buffer [0] & MAKE_MARKER_FUNC (0xFF, 0xFF, 0, 0)) == MAKE_MARKER_FUNC (1, 4, 0, 0))
 		return SF_FORMAT_MPC2K ;
 
-	if (buffer [0] == MAKE_MARKER ('C', 'A', 'T', ' ') && buffer [2] == MAKE_MARKER ('R', 'E', 'X', '2'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('C', 'A', 'T', ' ') && buffer [2] == MAKE_MARKER_FUNC ('R', 'E', 'X', '2'))
 		return SF_FORMAT_REX2 ;
 
-	if (buffer [0] == MAKE_MARKER (0x30, 0x26, 0xB2, 0x75) && buffer [1] == MAKE_MARKER (0x8E, 0x66, 0xCF, 0x11))
+	if (buffer [0] == MAKE_MARKER_FUNC (0x30, 0x26, 0xB2, 0x75) && buffer [1] == MAKE_MARKER_FUNC (0x8E, 0x66, 0xCF, 0x11))
 		return 0 /*-SF_FORMAT_WMA-*/ ;
 
 	/* HMM (Hidden Markov Model) Tool Kit. */
-	if (buffer [2] == MAKE_MARKER (0, 2, 0, 0) && 2 * ((int64_t) BE2H_32 (buffer [0])) + 12 == psf->filelength)
+	if (buffer [2] == MAKE_MARKER_FUNC (0, 2, 0, 0) && 2 * ((int64_t) BE2H_32 (buffer [0])) + 12 == psf->filelength)
 		return SF_FORMAT_HTK ;
 
-	if (buffer [0] == MAKE_MARKER ('f', 'L', 'a', 'C'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('f', 'L', 'a', 'C'))
 		return SF_FORMAT_FLAC ;
 
-	if (buffer [0] == MAKE_MARKER ('2', 'B', 'I', 'T'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('2', 'B', 'I', 'T'))
 		return SF_FORMAT_AVR ;
 
-	if (buffer [0] == MAKE_MARKER ('R', 'F', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('R', 'F', '6', '4') && buffer [2] == MAKE_MARKER_FUNC ('W', 'A', 'V', 'E'))
 		return SF_FORMAT_RF64 ;
 
-	if (buffer [0] == MAKE_MARKER ('I', 'D', '3', 3))
+	if (buffer [0] == MAKE_MARKER_FUNC ('I', 'D', '3', 3))
 	{	psf_log_printf (psf, "Found 'ID3' marker.\n") ;
 		if (id3_skip (psf))
 			return guess_file_type (psf) ;
@@ -2772,14 +2781,14 @@ guess_file_type (SF_PRIVATE *psf)
 		} ;
 
 	/* Turtle Beach SMP 16-bit */
-	if (buffer [0] == MAKE_MARKER ('S', 'O', 'U', 'N') && buffer [1] == MAKE_MARKER ('D', ' ', 'S', 'A'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('S', 'O', 'U', 'N') && buffer [1] == MAKE_MARKER_FUNC ('D', ' ', 'S', 'A'))
 		return 0 ;
 
 	/* Yamaha sampler format. */
-	if (buffer [0] == MAKE_MARKER ('S', 'Y', '8', '0') || buffer [0] == MAKE_MARKER ('S', 'Y', '8', '5'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('S', 'Y', '8', '0') || buffer [0] == MAKE_MARKER_FUNC ('S', 'Y', '8', '5'))
 		return 0 ;
 
-	if (buffer [0] == MAKE_MARKER ('a', 'j', 'k', 'g'))
+	if (buffer [0] == MAKE_MARKER_FUNC ('a', 'j', 'k', 'g'))
 		return 0 /*-SF_FORMAT_SHN-*/ ;
 
 	/* This must be the last one. */
@@ -3280,7 +3289,7 @@ int
 sf_set_chunk (SNDFILE * sndfile, const SF_CHUNK_INFO * chunk_info)
 {	SF_PRIVATE 	*psf ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (chunk_info == NULL || chunk_info->data == NULL)
 		return SFE_BAD_CHUNK_PTR ;
@@ -3296,7 +3305,7 @@ SF_CHUNK_ITERATOR *
 sf_get_chunk_iterator (SNDFILE * sndfile, const SF_CHUNK_INFO * chunk_info)
 {	SF_PRIVATE 	*psf ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (chunk_info)
 		return psf_get_chunk_iterator (psf, chunk_info->id) ;
@@ -3310,7 +3319,7 @@ sf_next_chunk_iterator (SF_CHUNK_ITERATOR * iterator)
 {	SF_PRIVATE 	*psf ;
 	SNDFILE	*sndfile = iterator ? iterator->sndfile : NULL ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (psf->next_chunk_iterator)
 		return psf->next_chunk_iterator (psf, iterator) ;
@@ -3324,7 +3333,7 @@ sf_get_chunk_size (const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_inf
 {	SF_PRIVATE 	*psf ;
 	SNDFILE	*sndfile = iterator ? iterator->sndfile : NULL ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (chunk_info == NULL)
 		return SFE_BAD_CHUNK_PTR ;
@@ -3342,7 +3351,7 @@ sf_get_chunk_data (const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_inf
 {	SF_PRIVATE	*psf ;
 	SNDFILE	*sndfile = iterator ? iterator->sndfile : NULL ;
 
-	VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, psf, 1) ;
+	if(!VALIDATE_SNDFILE_AND_ASSIGN_PSF (sndfile, &psf, 1)) {return 0;};
 
 	if (chunk_info == NULL || chunk_info->data == NULL)
 		return SFE_BAD_CHUNK_PTR ;

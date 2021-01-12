@@ -31,8 +31,8 @@
 ** Macros to handle big/little endian issues.
 */
 
-#define DOTSND_MARKER	(MAKE_MARKER ('.', 's', 'n', 'd'))
-#define DNSDOT_MARKER	(MAKE_MARKER ('d', 'n', 's', '.'))
+#define DOTSND_MARKER	1684960046
+#define DNSDOT_MARKER	779316836
 
 #define AU_DATA_OFFSET	24
 

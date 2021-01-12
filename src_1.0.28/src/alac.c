@@ -17,6 +17,7 @@
 */
 
 #include	"sfconfig.h"
+#include        "sfendian.h"
 
 #include	<stdio.h>
 #include	<stdlib.h>
@@ -131,7 +132,7 @@ alac_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 			break ;
 
 		default :
-			psf_log_printf (psf, "%s : Bad psf->file.mode.\n", __func__) ;
+			psf_log_printf (psf, "%s : Bad psf->file.mode.\n", "alac_init") ;
 			return SFE_INTERNAL ;
 		} ;
 
@@ -241,7 +242,7 @@ alac_reader_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 	union			{ uint8_t kuki [512] ; uint32_t alignment ; } u ;
 
 	if (info == NULL)
-	{	psf_log_printf (psf, "%s : ALAC_DECODER_INFO is NULL.\n", __func__) ;
+	{	psf_log_printf (psf, "%s : ALAC_DECODER_INFO is NULL.\n", "alac_reader_init") ;
 		return SFE_INTERNAL ;
 		} ;
 
@@ -261,7 +262,7 @@ alac_reader_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 	plac->pakt_info = alac_pakt_read_decode (psf, info->pakt_offset) ;
 
 	if (plac->pakt_info == NULL)
-	{	psf_log_printf (psf, "%s : alac_pkt_read() returns NULL.\n", __func__) ;
+	{	psf_log_printf (psf, "%s : alac_pkt_read() returns NULL.\n", "alac_reader_init") ;
 		return SFE_INTERNAL ;
 		} ;
 
@@ -291,7 +292,7 @@ alac_reader_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 			break ;
 
 		default :
-			printf ("%s : info->bits_per_sample %u\n", __func__, info->bits_per_sample) ;
+			printf ("%s : info->bits_per_sample %u\n", "alac_reader_init", info->bits_per_sample) ;
 			return SFE_UNSUPPORTED_ENCODING ;
 		} ;
 
@@ -344,7 +345,7 @@ alac_writer_init (SF_PRIVATE *psf)
 			break ;
 
 		default :
-			psf_log_printf (psf, "%s : Can't figure out bits per sample.\n", __func__) ;
+			psf_log_printf (psf, "%s : Can't figure out bits per sample.\n", "alac_writer_init") ;
 			return SFE_UNIMPLEMENTED ;
 		} ;
 
@@ -366,7 +367,7 @@ alac_writer_init (SF_PRIVATE *psf)
 ** ALAC block decoder and encoder.
 */
 
-static inline uint32_t
+static uint32_t
 alac_reader_next_packet_size (PAKT_INFO * info)
 {	if (info->current >= info->count)
 		return 0 ;
@@ -416,7 +417,7 @@ alac_decode_block (SF_PRIVATE *psf, ALAC_PRIVATE *plac)
 	psf_fseek (psf, plac->input_data_pos, SEEK_SET) ;
 
 	if (packet_size > sizeof (plac->byte_buffer))
-	{	psf_log_printf (psf, "%s : bad packet_size (%u)\n", __func__, packet_size) ;
+	{	psf_log_printf (psf, "%s : bad packet_size (%u)\n", "alac_decode_block", packet_size) ;
 		return 0 ;
 		} ;
 
@@ -814,7 +815,7 @@ alac_pakt_read_decode (SF_PRIVATE * psf, uint32_t UNUSED (pakt_offset))
 	chunk_info.id_size = 4 ;
 
 	if ((chunk_iterator = psf_get_chunk_iterator (psf, chunk_info.id)) == NULL)
-	{	psf_log_printf (psf, "%s : no chunk iterator found\n", __func__) ;
+	{	psf_log_printf (psf, "%s : no chunk iterator found\n", "alac_pakt_read_decode") ;
 		free (chunk_info.data) ;
 		chunk_info.data = NULL ;
 		return NULL ;
@@ -850,7 +851,7 @@ alac_pakt_read_decode (SF_PRIVATE * psf, uint32_t UNUSED (pakt_offset))
 
 			count ++ ;
 			if (count > 5 || bcount + count > pakt_size)
-			{	printf ("%s %d : Ooops! count %d    bcount %d\n", __func__, __LINE__, count, bcount) ;
+			{	printf ("%s %d : Ooops! count %d    bcount %d\n", "alac_pakt_read_decode", __LINE__, count, bcount) ;
 				value = 0 ;
 				break ;
 				} ;
@@ -952,14 +953,14 @@ alac_kuki_read (SF_PRIVATE * psf, uint32_t kuki_offset, uint8_t * kuki, size_t k
 		return 0 ;
 
 	psf_fread (&marker, 1, sizeof (marker), psf) ;
-	if (marker != MAKE_MARKER ('k', 'u', 'k', 'i'))
+	if (marker != 1768650091)
 		return 0 ;
 
 	psf_fread (&kuki_size, 1, sizeof (kuki_size), psf) ;
 	kuki_size = BE2H_64 (kuki_size) ;
 
 	if (kuki_size == 0 || kuki_size > kuki_maxlen)
-	{	psf_log_printf (psf, "%s : Bad size (%D) of 'kuki' chunk.\n", __func__, kuki_size) ;
+	{	psf_log_printf (psf, "%s : Bad size (%D) of 'kuki' chunk.\n", "alac_kuki_read", kuki_size) ;
 		return 0 ;
 		} ;
 

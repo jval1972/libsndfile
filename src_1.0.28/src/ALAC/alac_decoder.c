@@ -646,7 +646,8 @@ static void Zero32 (int32_t * buffer, uint32_t numItems, uint32_t stride)
 	}
 	else
 	{
-		for (uint32_t indx = 0 ; indx < (numItems * stride) ; indx += stride)
+                uint32_t indx;
+		for (indx = 0 ; indx < (numItems * stride) ; indx += stride)
 			buffer [indx] = 0 ;
 	}
 }

@@ -118,7 +118,7 @@ psf_store_string (SF_PRIVATE *psf, int str_type, const char *str)
 				break ;
 
 		default :
-			psf_log_printf (psf, "%s : SFE_STR_BAD_TYPE\n", __func__) ;
+			psf_log_printf (psf, "%s : SFE_STR_BAD_TYPE\n", "psf_store_string") ;
 			return SFE_STR_BAD_TYPE ;
 		} ;
 

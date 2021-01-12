@@ -31,7 +31,7 @@
 ** Macros to handle big/little endian issues.
 */
 
-#define PVF1_MARKER		(MAKE_MARKER ('P', 'V', 'F', '1'))
+#define PVF1_MARKER		826693200
 
 /*------------------------------------------------------------------------------
 ** Private static functions.

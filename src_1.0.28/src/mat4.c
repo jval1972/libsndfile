@@ -39,21 +39,30 @@
 ** Macros to handle big/little endian issues.
 */
 
-#define MAT4_BE_DOUBLE	(MAKE_MARKER (0, 0, 0x03, 0xE8))
-#define MAT4_LE_DOUBLE	(MAKE_MARKER (0, 0, 0, 0))
+//#define MAT4_BE_DOUBLE	(MAKE_MARKER (0, 0, 0x03, 0xE8))
+#define MAT4_BE_DOUBLE	0xE8030000
+#define MAT4_LE_DOUBLE	0x00000000
 
-#define MAT4_BE_FLOAT	(MAKE_MARKER (0, 0, 0x03, 0xF2))
-#define MAT4_LE_FLOAT	(MAKE_MARKER (0x0A, 0, 0, 0))
+//#define MAT4_BE_FLOAT	(MAKE_MARKER (0, 0, 0x03, 0xF2))
+#define MAT4_BE_FLOAT	0xF2030000
+//#define MAT4_LE_FLOAT	(MAKE_MARKER (0x0A, 0, 0, 0))
+#define MAT4_LE_FLOAT	0x0000000A
 
-#define MAT4_BE_PCM_32	(MAKE_MARKER (0, 0, 0x03, 0xFC))
-#define MAT4_LE_PCM_32	(MAKE_MARKER (0x14, 0, 0, 0))
+//#define MAT4_BE_PCM_32	(MAKE_MARKER (0, 0, 0x03, 0xFC))
+#define MAT4_BE_PCM_32	0xFC030000
+//#define MAT4_LE_PCM_32	(MAKE_MARKER (0x14, 0, 0, 0))
+#define MAT4_LE_PCM_32	0x00000014
 
-#define MAT4_BE_PCM_16	(MAKE_MARKER (0, 0, 0x04, 0x06))
-#define MAT4_LE_PCM_16	(MAKE_MARKER (0x1E, 0, 0, 0))
+//#define MAT4_BE_PCM_16	(MAKE_MARKER (0, 0, 0x04, 0x06))
+#define MAT4_BE_PCM_16	0x06040000
+//#define MAT4_LE_PCM_16	(MAKE_MARKER (0x1E, 0, 0, 0))
+#define MAT4_LE_PCM_16	0x0000001E
 
 /* Can't see any reason to ever implement this. */
-#define MAT4_BE_PCM_U8	(MAKE_MARKER (0, 0, 0x04, 0x1A))
-#define MAT4_LE_PCM_U8	(MAKE_MARKER (0x32, 0, 0, 0))
+//#define MAT4_BE_PCM_U8	(MAKE_MARKER (0, 0, 0x04, 0x1A))
+#define MAT4_BE_PCM_U8	0x1A040000
+//#define MAT4_LE_PCM_U8	(MAKE_MARKER (0x32, 0, 0, 0))
+#define MAT4_LE_PCM_U8	0x00000032
 
 /*------------------------------------------------------------------------------
 ** Private static functions.

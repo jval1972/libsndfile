@@ -32,10 +32,10 @@
 ** Macros to handle big/little endian issues, and other magic numbers.
 */
 
-#define ALAW_MARKER			MAKE_MARKER ('A', 'L', 'a', 'w')
-#define SOUN_MARKER			MAKE_MARKER ('S', 'o', 'u', 'n')
-#define DFIL_MARKER			MAKE_MARKER ('d', 'F', 'i', 'l')
-#define ESSN_MARKER			MAKE_MARKER ('e', '*', '*', '\0')
+#define ALAW_MARKER			2002865217
+#define SOUN_MARKER			1853189971
+#define DFIL_MARKER			1818838628
+#define ESSN_MARKER			2763365
 #define PSION_VERSION		((unsigned short) 3856)
 #define PSION_DATAOFFSET	0x20
 

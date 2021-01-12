@@ -40,7 +40,7 @@
 
 #define LOOP_ALIGN
 
-static inline int32_t ALWAYS_INLINE
+static int32_t ALWAYS_INLINE
 sign_of_int (int32_t i)
 {
 	int32_t negishift ;

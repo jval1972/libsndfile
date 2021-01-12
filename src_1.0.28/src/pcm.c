@@ -279,21 +279,21 @@ pcm_init (SF_PRIVATE *psf)
 /*==============================================================================
 */
 
-static inline void
+static void
 sc2s_array	(signed char *src, int count, short *dest)
 {	while (--count >= 0)
 	{	dest [count] = ((uint16_t) src [count]) << 8 ;
 		} ;
 } /* sc2s_array */
 
-static inline void
+static void
 uc2s_array	(unsigned char *src, int count, short *dest)
 {	while (--count >= 0)
 	{	dest [count] = (((uint32_t) src [count]) - 0x80) << 8 ;
 		} ;
 } /* uc2s_array */
 
-static inline void
+static void
 let2s_array (tribyte *src, int count, short *dest)
 {	unsigned char	*ucptr ;
 
@@ -304,7 +304,7 @@ let2s_array (tribyte *src, int count, short *dest)
 		} ;
 } /* let2s_array */
 
-static inline void
+static void
 bet2s_array (tribyte *src, int count, short *dest)
 {	unsigned char	*ucptr ;
 
@@ -315,7 +315,7 @@ bet2s_array (tribyte *src, int count, short *dest)
 		} ;
 } /* bet2s_array */
 
-static inline void
+static void
 lei2s_array (int *src, int count, short *dest)
 {	int value ;
 
@@ -325,7 +325,7 @@ lei2s_array (int *src, int count, short *dest)
 		} ;
 } /* lei2s_array */
 
-static inline void
+static void
 bei2s_array (int *src, int count, short *dest)
 {	int value ;
 
@@ -338,21 +338,21 @@ bei2s_array (int *src, int count, short *dest)
 /*--------------------------------------------------------------------------
 */
 
-static inline void
+static void
 sc2i_array	(signed char *src, int count, int *dest)
 {	while (--count >= 0)
 	{	dest [count] = arith_shift_left ((int) src [count], 24) ;
 		} ;
 } /* sc2i_array */
 
-static inline void
+static void
 uc2i_array	(unsigned char *src, int count, int *dest)
 {	while (--count >= 0)
 	{	dest [count] = arith_shift_left (((int) src [count]) - 128, 24) ;
 		} ;
 } /* uc2i_array */
 
-static inline void
+static void
 bes2i_array (short *src, int count, int *dest)
 {	short value ;
 
@@ -362,7 +362,7 @@ bes2i_array (short *src, int count, int *dest)
 		} ;
 } /* bes2i_array */
 
-static inline void
+static void
 les2i_array (short *src, int count, int *dest)
 {	short value ;
 
@@ -372,7 +372,7 @@ les2i_array (short *src, int count, int *dest)
 		} ;
 } /* les2i_array */
 
-static inline void
+static void
 bet2i_array (tribyte *src, int count, int *dest)
 {	unsigned char	*ucptr ;
 
@@ -383,7 +383,7 @@ bet2i_array (tribyte *src, int count, int *dest)
 		} ;
 } /* bet2i_array */
 
-static inline void
+static void
 let2i_array (tribyte *src, int count, int *dest)
 {	unsigned char	*ucptr ;
 
@@ -397,19 +397,19 @@ let2i_array (tribyte *src, int count, int *dest)
 /*--------------------------------------------------------------------------
 */
 
-static inline void
+static void
 sc2f_array	(signed char *src, int count, float *dest, float normfact)
 {	while (--count >= 0)
 		dest [count] = ((float) src [count]) * normfact ;
 } /* sc2f_array */
 
-static inline void
+static void
 uc2f_array	(unsigned char *src, int count, float *dest, float normfact)
 {	while (--count >= 0)
 		dest [count] = (((int) src [count]) - 128) * normfact ;
 } /* uc2f_array */
 
-static inline void
+static void
 les2f_array (short *src, int count, float *dest, float normfact)
 {	short	value ;
 
@@ -420,7 +420,7 @@ les2f_array (short *src, int count, float *dest, float normfact)
 		} ;
 } /* les2f_array */
 
-static inline void
+static void
 bes2f_array (short *src, int count, float *dest, float normfact)
 {	short			value ;
 
@@ -431,7 +431,7 @@ bes2f_array (short *src, int count, float *dest, float normfact)
 		} ;
 } /* bes2f_array */
 
-static inline void
+static void
 let2f_array (tribyte *src, int count, float *dest, float normfact)
 {	unsigned char	*ucptr ;
 	int 			value ;
@@ -444,7 +444,7 @@ let2f_array (tribyte *src, int count, float *dest, float normfact)
 		} ;
 } /* let2f_array */
 
-static inline void
+static void
 bet2f_array (tribyte *src, int count, float *dest, float normfact)
 {	unsigned char	*ucptr ;
 	int				value ;
@@ -457,7 +457,7 @@ bet2f_array (tribyte *src, int count, float *dest, float normfact)
 		} ;
 } /* bet2f_array */
 
-static inline void
+static void
 lei2f_array (int *src, int count, float *dest, float normfact)
 {	int 			value ;
 
@@ -468,7 +468,7 @@ lei2f_array (int *src, int count, float *dest, float normfact)
 		} ;
 } /* lei2f_array */
 
-static inline void
+static void
 bei2f_array (int *src, int count, float *dest, float normfact)
 {	int 			value ;
 
@@ -482,19 +482,19 @@ bei2f_array (int *src, int count, float *dest, float normfact)
 /*--------------------------------------------------------------------------
 */
 
-static inline void
+static void
 sc2d_array	(signed char *src, int count, double *dest, double normfact)
 {	while (--count >= 0)
 		dest [count] = ((double) src [count]) * normfact ;
 } /* sc2d_array */
 
-static inline void
+static void
 uc2d_array	(unsigned char *src, int count, double *dest, double normfact)
 {	while (--count >= 0)
 		dest [count] = (((int) src [count]) - 128) * normfact ;
 } /* uc2d_array */
 
-static inline void
+static void
 les2d_array (short *src, int count, double *dest, double normfact)
 {	short	value ;
 
@@ -505,7 +505,7 @@ les2d_array (short *src, int count, double *dest, double normfact)
 		} ;
 } /* les2d_array */
 
-static inline void
+static void
 bes2d_array (short *src, int count, double *dest, double normfact)
 {	short	value ;
 
@@ -516,7 +516,7 @@ bes2d_array (short *src, int count, double *dest, double normfact)
 		} ;
 } /* bes2d_array */
 
-static inline void
+static void
 let2d_array (tribyte *src, int count, double *dest, double normfact)
 {	unsigned char	*ucptr ;
 	int				value ;
@@ -529,7 +529,7 @@ let2d_array (tribyte *src, int count, double *dest, double normfact)
 		} ;
 } /* let2d_array */
 
-static inline void
+static void
 bet2d_array (tribyte *src, int count, double *dest, double normfact)
 {	unsigned char	*ucptr ;
 	int				value ;
@@ -542,7 +542,7 @@ bet2d_array (tribyte *src, int count, double *dest, double normfact)
 		} ;
 } /* bet2d_array */
 
-static inline void
+static void
 lei2d_array (int *src, int count, double *dest, double normfact)
 {	int 	value ;
 
@@ -553,7 +553,7 @@ lei2d_array (int *src, int count, double *dest, double normfact)
 		} ;
 } /* lei2d_array */
 
-static inline void
+static void
 bei2d_array (int *src, int count, double *dest, double normfact)
 {	int 	value ;
 
@@ -567,19 +567,19 @@ bei2d_array (int *src, int count, double *dest, double normfact)
 /*--------------------------------------------------------------------------
 */
 
-static inline void
+static void
 s2sc_array	(const short *src, signed char *dest, int count)
 {	while (--count >= 0)
 		dest [count] = src [count] >> 8 ;
 } /* s2sc_array */
 
-static inline void
+static void
 s2uc_array	(const short *src, unsigned char *dest, int count)
 {	while (--count >= 0)
 		dest [count] = (src [count] >> 8) + 0x80 ;
 } /* s2uc_array */
 
-static inline void
+static void
 s2let_array (const short *src, tribyte *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -592,7 +592,7 @@ s2let_array (const short *src, tribyte *dest, int count)
 		} ;
 } /* s2let_array */
 
-static inline void
+static void
 s2bet_array (const short *src, tribyte *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -605,7 +605,7 @@ s2bet_array (const short *src, tribyte *dest, int count)
 		} ;
 } /* s2bet_array */
 
-static inline void
+static void
 s2lei_array (const short *src, int *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -619,7 +619,7 @@ s2lei_array (const short *src, int *dest, int count)
 		} ;
 } /* s2lei_array */
 
-static inline void
+static void
 s2bei_array (const short *src, int *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -636,19 +636,19 @@ s2bei_array (const short *src, int *dest, int count)
 /*--------------------------------------------------------------------------
 */
 
-static inline void
+static void
 i2sc_array	(const int *src, signed char *dest, int count)
 {	while (--count >= 0)
 		dest [count] = (src [count] >> 24) ;
 } /* i2sc_array */
 
-static inline void
+static void
 i2uc_array	(const int *src, unsigned char *dest, int count)
 {	while (--count >= 0)
 		dest [count] = ((src [count] >> 24) + 128) ;
 } /* i2uc_array */
 
-static inline void
+static void
 i2bes_array (const int *src, short *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -660,7 +660,7 @@ i2bes_array (const int *src, short *dest, int count)
 		} ;
 } /* i2bes_array */
 
-static inline void
+static void
 i2les_array (const int *src, short *dest, int count)
 {	unsigned char	*ucptr ;
 
@@ -672,7 +672,7 @@ i2les_array (const int *src, short *dest, int count)
 		} ;
 } /* i2les_array */
 
-static inline void
+static void
 i2let_array (const int *src, tribyte *dest, int count)
 {	unsigned char	*ucptr ;
 	int				value ;
@@ -687,7 +687,7 @@ i2let_array (const int *src, tribyte *dest, int count)
 		} ;
 } /* i2let_array */
 
-static inline void
+static void
 i2bet_array (const int *src, tribyte *dest, int count)
 {	unsigned char	*ucptr ;
 	int				value ;

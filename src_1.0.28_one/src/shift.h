@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2008-2016 Erik de Castro Lopo <erikd@mega-nerd.com>
+** Copyright (C) 2014 Erik de Castro Lopo <erikd@mega-nerd.com>
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU Lesser General Public License as published by
@@ -16,27 +16,14 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-static inline void
-print_test_name (const char * name)
-{	printf ("    %-40s : ", name) ;
-	fflush (stdout) ;
-} /* print_test_name */
+#if __GNUC__
+#define ALWAYS_INLINE		__attribute__ ((always_inline))
+#else
+#define ALWAYS_INLINE
+#endif
 
 
-
-void test_conversions (void) ;
-void test_endswap (void) ;
-void test_log_printf (void) ;
-void test_binheader_writef (void) ;
-void test_file_io (void) ;
-
-void test_float_convert (void) ;
-void test_double_convert (void) ;
-
-void test_audio_detect (void) ;
-void test_ima_oki_adpcm (void) ;
-
-void test_psf_strlcpy_crlf (void) ;
-void test_broadcast_var (void) ;
-
-void test_cart_var (void) ;
+static int32_t ALWAYS_INLINE
+arith_shift_left (int32_t x, int shift)
+{	return (int32_t) (((uint32_t) x) << shift) ;
+} /* arith_shift_left */

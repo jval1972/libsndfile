@@ -790,31 +790,31 @@ unsigned char ulaw_encode [8193] =
 	0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80
 } ;
 
-static inline void
+static void
 ulaw2s_array (unsigned char *buffer, int count, short *ptr)
 {	while (--count >= 0)
 		ptr [count] = ulaw_decode [(int) buffer [count]] ;
 } /* ulaw2s_array */
 
-static inline void
+static void
 ulaw2i_array (unsigned char *buffer, int count, int *ptr)
 {	while (--count >= 0)
 		ptr [count] = ((uint32_t) ulaw_decode [buffer [count]]) << 16 ;
 } /* ulaw2i_array */
 
-static inline void
+static void
 ulaw2f_array (unsigned char *buffer, int count, float *ptr, float normfact)
 {	while (--count >= 0)
 		ptr [count] = normfact * ulaw_decode [(int) buffer [count]] ;
 } /* ulaw2f_array */
 
-static inline void
+static void
 ulaw2d_array (const unsigned char *buffer, int count, double *ptr, double normfact)
 {	while (--count >= 0)
 		ptr [count] = normfact * ulaw_decode [(int) buffer [count]] ;
 } /* ulaw2d_array */
 
-static inline void
+static void
 s2ulaw_array (const short *ptr, int count, unsigned char *buffer)
 {	while (--count >= 0)
 	{	if (ptr [count] >= 0)
@@ -824,7 +824,7 @@ s2ulaw_array (const short *ptr, int count, unsigned char *buffer)
 		} ;
 } /* s2ulaw_array */
 
-static inline void
+static void
 i2ulaw_array (const int *ptr, int count, unsigned char *buffer)
 {	while (--count >= 0)
 	{	if (ptr [count] >= 0)
@@ -834,7 +834,7 @@ i2ulaw_array (const int *ptr, int count, unsigned char *buffer)
 		} ;
 } /* i2ulaw_array */
 
-static inline void
+static void
 f2ulaw_array (const float *ptr, int count, unsigned char *buffer, float normfact)
 {	while (--count >= 0)
 	{	if (ptr [count] >= 0)
@@ -844,7 +844,7 @@ f2ulaw_array (const float *ptr, int count, unsigned char *buffer, float normfact
 		} ;
 } /* f2ulaw_array */
 
-static inline void
+static void
 d2ulaw_array (const double *ptr, int count, unsigned char *buffer, double normfact)
 {	while (--count >= 0)
 	{	if (ptr [count] >= 0)

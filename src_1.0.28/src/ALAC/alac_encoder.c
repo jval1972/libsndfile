@@ -64,7 +64,7 @@ static int32_t	EncodeMono (ALAC_ENCODER *p, struct BitBuffer * bitstream, const 
 typedef int16_t (*SearchCoefs) [kALACMaxCoefs] ;
 
 // defines/constants
-const uint32_t kALACEncoderMagic	= MAKE_MARKER ('d', 'p', 'g', 'e') ;
+const uint32_t kALACEncoderMagic	= 1701277796;
 const uint32_t kMaxSampleSize		= 32 ;			// max allowed bit width is 32
 const uint32_t kDefaultMixBits		= 2 ;
 const uint32_t kDefaultMixRes		= 0 ;
@@ -241,6 +241,8 @@ EncodeStereo (ALAC_ENCODER *p, struct BitBuffer * bitstream, const int32_t * inp
 	bool			doEscape ;
 	int32_t			status = ALAC_noErr ;
 	int32_t			bestRes ;
+        uint32_t                numUV;
+        uint32_t                converge;
 
 	// make sure we handle this bit-depth before we get going
 	RequireAction ((p->mBitDepth == 16) || (p->mBitDepth == 20) || (p->mBitDepth == 24) || (p->mBitDepth == 32), return kALAC_ParamError ;) ;
@@ -355,14 +357,14 @@ EncodeStereo (ALAC_ENCODER *p, struct BitBuffer * bitstream, const int32_t * inp
 	numU = numV = kMinUV ;
 	minBits1 = minBits2 = 1ul << 31 ;
 
-	for (uint32_t numUV = kMinUV ; numUV <= kMaxUV ; numUV += 4)
+	for (numUV = kMinUV ; numUV <= kMaxUV ; numUV += 4)
 	{
 		BitBufferInit (&workBits, p->mWorkBuffer, p->mMaxOutputBytes) ;
 
 		dilate = 32 ;
 
 		// run the predictor over the same data multiple times to help it converge
-		for (uint32_t converge = 0 ; converge < 8 ; converge++)
+		for (converge = 0 ; converge < 8 ; converge++)
 		{
 			pc_block (p->mMixBufferU, p->mPredictorU, numSamples / dilate, coefsU [numUV-1], numUV, chanBits, DENSHIFT_DEFAULT) ;
 			pc_block (p->mMixBufferV, p->mPredictorV, numSamples / dilate, coefsV [numUV-1], numUV, chanBits, DENSHIFT_DEFAULT) ;
@@ -760,6 +762,7 @@ EncodeMono (ALAC_ENCODER *p, struct BitBuffer * bitstream, const int32_t * input
 	uint32_t		escapeBits ;
 	bool			doEscape ;
 	int32_t			status = ALAC_noErr ;
+        uint32_t                converge;
 
 
 	// make sure we handle this bit-depth before we get going
@@ -835,7 +838,7 @@ EncodeMono (ALAC_ENCODER *p, struct BitBuffer * bitstream, const int32_t * input
 		BitBufferInit (&workBits, p->mWorkBuffer, p->mMaxOutputBytes) ;
 
 		dilate = 32 ;
-		for (uint32_t converge = 0 ; converge < 7 ; converge++)
+		for (converge = 0 ; converge < 7 ; converge++)
 			pc_block (p->mMixBufferU, p->mPredictorU, numSamples / dilate, coefsU [numU - 1], numU, chanBits, DENSHIFT_DEFAULT) ;
 
 		dilate = 8 ;
@@ -1177,6 +1180,9 @@ int32_t
 alac_encoder_init (ALAC_ENCODER *p, uint32_t samplerate, uint32_t channels, uint32_t format_flags, uint32_t frameSize)
 {
 	int32_t			status ;
+        uint32_t                indx;
+        int32_t                 channel;
+        int32_t                 search;
 
 	p->mFrameSize = (frameSize > 0 && frameSize <= ALAC_FRAME_LENGTH) ? frameSize : ALAC_FRAME_LENGTH ;
 
@@ -1202,7 +1208,7 @@ alac_encoder_init (ALAC_ENCODER *p, uint32_t samplerate, uint32_t channels, uint
 
 	// set up default encoding parameters and state
 	// - note: mFrameSize is set in the constructor or via alac_set_frame_size () which must be called before this routine
-	for (uint32_t indx = 0 ; indx < kALACMaxChannels ; indx++)
+	for (indx = 0 ; indx < kALACMaxChannels ; indx++)
 		p->mLastMixRes [indx] = kDefaultMixRes ;
 
 	// the maximum output frame size can be no bigger than (samplesPerBlock * numChannels * ((10 + sampleSize)/8) + 1)
@@ -1213,9 +1219,9 @@ alac_encoder_init (ALAC_ENCODER *p, uint32_t samplerate, uint32_t channels, uint
 	status = ALAC_noErr ;
 
 	// initialize coefs arrays once b/c retaining state across blocks actually improves the encode ratio
-	for (int32_t channel = 0 ; channel < (int32_t) p->mNumChannels ; channel++)
+	for (channel = 0 ; channel < (int32_t) p->mNumChannels ; channel++)
 	{
-		for (int32_t search = 0 ; search < kALACMaxSearches ; search++)
+		for (search = 0 ; search < kALACMaxSearches ; search++)
 		{
 			init_coefs (p->mCoefsU [channel][search], DENSHIFT_DEFAULT, kALACMaxCoefs) ;
 			init_coefs (p->mCoefsV [channel][search], DENSHIFT_DEFAULT, kALACMaxCoefs) ;

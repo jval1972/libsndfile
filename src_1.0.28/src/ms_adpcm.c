@@ -194,7 +194,7 @@ wavlike_msadpcm_init	(SF_PRIVATE *psf, int blockalign, int samplesperblock)
 } /* wavlike_msadpcm_init */
 
 
-static inline short
+static short
 msadpcm_get_bpred (SF_PRIVATE *psf, MSADPCM_PRIVATE *pms, unsigned char value)
 {	if (value >= WAVLIKE_MSADPCM_ADAPT_COEFF_COUNT)
 	{	if (pms->sync_error == 0)

@@ -23,7 +23,7 @@
 #include	<string.h>
 #include	<ctype.h>
 #include	<math.h>
-#include	<inttypes.h>
+#include	<stdint.h>
 
 #include	"sndfile.h"
 #include	"sfendian.h"
@@ -34,35 +34,35 @@
 ** Macros to handle big/little endian issues.
 */
 
-#define aac_MARKER		MAKE_MARKER ('a', 'a', 'c', ' ')
-#define alac_MARKER		MAKE_MARKER ('a', 'l', 'a', 'c')
-#define alaw_MARKER		MAKE_MARKER ('a', 'l', 'a', 'w')
-#define caff_MARKER		MAKE_MARKER ('c', 'a', 'f', 'f')
-#define chan_MARKER		MAKE_MARKER ('c', 'h', 'a', 'n')
-#define data_MARKER		MAKE_MARKER ('d', 'a', 't', 'a')
-#define desc_MARKER		MAKE_MARKER ('d', 'e', 's', 'c')
-#define edct_MARKER		MAKE_MARKER ('e', 'd', 'c', 't')
-#define free_MARKER		MAKE_MARKER ('f', 'r', 'e', 'e')
-#define ima4_MARKER		MAKE_MARKER ('i', 'm', 'a', '4')
-#define info_MARKER		MAKE_MARKER ('i', 'n', 'f', 'o')
-#define inst_MARKER		MAKE_MARKER ('i', 'n', 's', 't')
-#define kuki_MARKER		MAKE_MARKER ('k', 'u', 'k', 'i')
-#define lpcm_MARKER		MAKE_MARKER ('l', 'p', 'c', 'm')
-#define mark_MARKER		MAKE_MARKER ('m', 'a', 'r', 'k')
-#define midi_MARKER		MAKE_MARKER ('m', 'i', 'd', 'i')
-#define mp1_MARKER		MAKE_MARKER ('.', 'm', 'p', '1')
-#define mp2_MARKER		MAKE_MARKER ('.', 'm', 'p', '2')
-#define mp3_MARKER		MAKE_MARKER ('.', 'm', 'p', '3')
-#define ovvw_MARKER		MAKE_MARKER ('o', 'v', 'v', 'w')
-#define pakt_MARKER		MAKE_MARKER ('p', 'a', 'k', 't')
-#define peak_MARKER		MAKE_MARKER ('p', 'e', 'a', 'k')
-#define regn_MARKER		MAKE_MARKER ('r', 'e', 'g', 'n')
-#define strg_MARKER		MAKE_MARKER ('s', 't', 'r', 'g')
-#define umid_MARKER		MAKE_MARKER ('u', 'm', 'i', 'd')
-#define uuid_MARKER		MAKE_MARKER ('u', 'u', 'i', 'd')
-#define ulaw_MARKER		MAKE_MARKER ('u', 'l', 'a', 'w')
-#define MAC3_MARKER		MAKE_MARKER ('M', 'A', 'C', '3')
-#define MAC6_MARKER		MAKE_MARKER ('M', 'A', 'C', '6')
+#define aac_MARKER		543383905
+#define alac_MARKER		1667329121
+#define alaw_MARKER		2002873441
+#define caff_MARKER		1717985635
+#define chan_MARKER		1851877475
+#define data_MARKER		1635017060
+#define desc_MARKER		1668506980
+#define edct_MARKER		1952670821
+#define free_MARKER		1701147238
+#define ima4_MARKER		878800233
+#define info_MARKER		1868983913
+#define inst_MARKER		1953721961
+#define kuki_MARKER		1768650091
+#define lpcm_MARKER		1835233388
+#define mark_MARKER		1802658157
+#define midi_MARKER		1768188269
+#define mp1_MARKER		829451566
+#define mp2_MARKER		846228782
+#define mp3_MARKER		863005998
+#define ovvw_MARKER		2004252271
+#define pakt_MARKER		1953194352
+#define peak_MARKER		1801545072
+#define regn_MARKER		1852269938
+#define strg_MARKER		1735554163
+#define umid_MARKER		1684630901
+#define uuid_MARKER		1684632949
+#define ulaw_MARKER		2002873461
+#define MAC3_MARKER		860045645
+#define MAC6_MARKER		910377293
 
 #define CAF_PEAK_CHUNK_SIZE(ch) 	((int) (sizeof (int) + ch * (sizeof (float) + 8)))
 

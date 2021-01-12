@@ -90,7 +90,7 @@ static int aiff_ima_decode_block (SF_PRIVATE *psf, IMA_ADPCM_PRIVATE *pima) ;
 static int aiff_ima_encode_block (SF_PRIVATE *psf, IMA_ADPCM_PRIVATE *pima) ;
 
 
-static inline int
+static int
 clamp_ima_step_index (int indx)
 {	if (indx < 0)
 		return 0 ;

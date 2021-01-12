@@ -85,7 +85,7 @@ psf_bump_header_allocation (SF_PRIVATE * psf, sf_count_t needed)
 ** parselog array.
 */
 
-static inline void
+static void
 log_putchar (SF_PRIVATE *psf, char ch)
 {	if (psf->parselog.indx < SIGNED_SIZEOF (psf->parselog.buf) - 1)
 	{	psf->parselog.buf [psf->parselog.indx++] = ch ;
@@ -441,7 +441,7 @@ psf_asciiheader_printf (SF_PRIVATE *psf, const char *format, ...)
 ** seg. fault when asked to write an int or short to a non-int/short aligned address.
 */
 
-static inline void
+static void
 header_put_byte (SF_PRIVATE *psf, char x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 } /* header_put_byte */
@@ -456,7 +456,7 @@ header_put_marker (SF_PRIVATE *psf, int x)
 } /* header_put_marker */
 
 #elif (CPU_IS_LITTLE_ENDIAN == 1)
-static inline void
+static void
 header_put_marker (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
@@ -469,33 +469,33 @@ header_put_marker (SF_PRIVATE *psf, int x)
 #endif
 
 
-static inline void
+static void
 header_put_be_short (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
 	psf->header.ptr [psf->header.indx++] = x ;
 } /* header_put_be_short */
 
-static inline void
+static void
 header_put_le_short (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
 } /* header_put_le_short */
 
-static inline void
+static void
 header_put_be_3byte (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = (x >> 16) ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
 	psf->header.ptr [psf->header.indx++] = x ;
 } /* header_put_be_3byte */
 
-static inline void
+static void
 header_put_le_3byte (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
 	psf->header.ptr [psf->header.indx++] = (x >> 16) ;
 } /* header_put_le_3byte */
 
-static inline void
+static void
 header_put_be_int (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = (x >> 24) ;
 	psf->header.ptr [psf->header.indx++] = (x >> 16) ;
@@ -503,7 +503,7 @@ header_put_be_int (SF_PRIVATE *psf, int x)
 	psf->header.ptr [psf->header.indx++] = x ;
 } /* header_put_be_int */
 
-static inline void
+static void
 header_put_le_int (SF_PRIVATE *psf, int x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
@@ -513,7 +513,7 @@ header_put_le_int (SF_PRIVATE *psf, int x)
 
 #if (SIZEOF_SF_COUNT_T == 8)
 
-static inline void
+static void
 header_put_be_8byte (SF_PRIVATE *psf, sf_count_t x)
 {	psf->header.ptr [psf->header.indx++] = (x >> 56) ;
 	psf->header.ptr [psf->header.indx++] = (x >> 48) ;
@@ -525,7 +525,7 @@ header_put_be_8byte (SF_PRIVATE *psf, sf_count_t x)
 	psf->header.ptr [psf->header.indx++] = x ;
 } /* header_put_be_8byte */
 
-static inline void
+static void
 header_put_le_8byte (SF_PRIVATE *psf, sf_count_t x)
 {	psf->header.ptr [psf->header.indx++] = x ;
 	psf->header.ptr [psf->header.indx++] = (x >> 8) ;
@@ -1236,9 +1236,7 @@ psf_memset (void *s, int c, sf_count_t len)
 ** bodgy something up instead.
 */
 
-typedef SF_CUES_VAR (0) SF_CUES_0 ;
-
-#define SF_CUES_VAR_SIZE(count)	(sizeof (SF_CUES_0) + count * sizeof (SF_CUE_POINT))
+#define SF_CUES_VAR_SIZE(count)	(sizeof (uint32_t) + count * sizeof (SF_CUE_POINT))
 
 SF_CUES *
 psf_cues_alloc (uint32_t cue_count)
@@ -1728,7 +1726,7 @@ psf_open_tmpfile (char * fname, size_t fnamelen)
 		tmpdir = tmpdir == NULL ? "/tmp" : tmpdir ;
 		} ;
 
-	if (tmpdir && access (tmpdir, R_OK | W_OK | X_OK) == 0)
+	if (tmpdir)
 	{	snprintf (fname, fnamelen, "%s/%x%x-alac.tmp", tmpdir, psf_rand_int32 (), psf_rand_int32 ()) ;
 		if ((file = fopen (fname, "wb+")) != NULL)
 			return file ;

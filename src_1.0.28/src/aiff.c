@@ -24,7 +24,7 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #include "sndfile.h"
 #include "sfendian.h"
@@ -35,50 +35,50 @@
  * Macros to handle big/little endian issues.
  */
 
-#define FORM_MARKER		(MAKE_MARKER ('F', 'O', 'R', 'M'))
-#define AIFF_MARKER		(MAKE_MARKER ('A', 'I', 'F', 'F'))
-#define AIFC_MARKER		(MAKE_MARKER ('A', 'I', 'F', 'C'))
-#define COMM_MARKER		(MAKE_MARKER ('C', 'O', 'M', 'M'))
-#define SSND_MARKER		(MAKE_MARKER ('S', 'S', 'N', 'D'))
-#define MARK_MARKER		(MAKE_MARKER ('M', 'A', 'R', 'K'))
-#define INST_MARKER		(MAKE_MARKER ('I', 'N', 'S', 'T'))
-#define APPL_MARKER		(MAKE_MARKER ('A', 'P', 'P', 'L'))
-#define CHAN_MARKER		(MAKE_MARKER ('C', 'H', 'A', 'N'))
+#define FORM_MARKER		1297239878
+#define AIFF_MARKER		1179011393
+#define AIFC_MARKER		1128679745
+#define COMM_MARKER		1296912195
+#define SSND_MARKER		1145983827
+#define MARK_MARKER		1263681869
+#define INST_MARKER		1414745673
+#define APPL_MARKER		1280331841
+#define CHAN_MARKER		1312901187
 
-#define c_MARKER		(MAKE_MARKER ('(', 'c', ')', ' '))
-#define NAME_MARKER		(MAKE_MARKER ('N', 'A', 'M', 'E'))
-#define AUTH_MARKER		(MAKE_MARKER ('A', 'U', 'T', 'H'))
-#define ANNO_MARKER		(MAKE_MARKER ('A', 'N', 'N', 'O'))
-#define COMT_MARKER		(MAKE_MARKER ('C', 'O', 'M', 'T'))
-#define FVER_MARKER		(MAKE_MARKER ('F', 'V', 'E', 'R'))
-#define SFX_MARKER		(MAKE_MARKER ('S', 'F', 'X', '!'))
+#define c_MARKER		539583272
+#define NAME_MARKER		1162690894
+#define AUTH_MARKER		1213486401
+#define ANNO_MARKER		1330531905
+#define COMT_MARKER		1414352707
+#define FVER_MARKER		1380275782
+#define SFX_MARKER		559433299
 
-#define PEAK_MARKER		(MAKE_MARKER ('P', 'E', 'A', 'K'))
-#define basc_MARKER		(MAKE_MARKER ('b', 'a', 's', 'c'))
+#define PEAK_MARKER		1262568784
+#define basc_MARKER		1668505954
 
 /* Supported AIFC encodings.*/
-#define NONE_MARKER		(MAKE_MARKER ('N', 'O', 'N', 'E'))
-#define sowt_MARKER		(MAKE_MARKER ('s', 'o', 'w', 't'))
-#define twos_MARKER		(MAKE_MARKER ('t', 'w', 'o', 's'))
-#define raw_MARKER		(MAKE_MARKER ('r', 'a', 'w', ' '))
-#define in24_MARKER		(MAKE_MARKER ('i', 'n', '2', '4'))
-#define ni24_MARKER		(MAKE_MARKER ('4', '2', 'n', '1'))
-#define in32_MARKER		(MAKE_MARKER ('i', 'n', '3', '2'))
-#define ni32_MARKER		(MAKE_MARKER ('2', '3', 'n', 'i'))
+#define NONE_MARKER		1162760014
+#define sowt_MARKER		1953984371
+#define twos_MARKER		1936684916
+#define raw_MARKER		544694642
+#define in24_MARKER		875720297
+#define ni24_MARKER		1768829492
+#define in32_MARKER		842231401
+#define ni32_MARKER		1768829746
 
-#define fl32_MARKER		(MAKE_MARKER ('f', 'l', '3', '2'))
-#define FL32_MARKER		(MAKE_MARKER ('F', 'L', '3', '2'))
-#define fl64_MARKER		(MAKE_MARKER ('f', 'l', '6', '4'))
-#define FL64_MARKER		(MAKE_MARKER ('F', 'L', '6', '4'))
+#define fl32_MARKER		842230886
+#define FL32_MARKER		842222662
+#define fl64_MARKER		875981926
+#define FL64_MARKER		875973702
 
-#define ulaw_MARKER		(MAKE_MARKER ('u', 'l', 'a', 'w'))
-#define ULAW_MARKER		(MAKE_MARKER ('U', 'L', 'A', 'W'))
-#define alaw_MARKER		(MAKE_MARKER ('a', 'l', 'a', 'w'))
-#define ALAW_MARKER		(MAKE_MARKER ('A', 'L', 'A', 'W'))
+#define ulaw_MARKER		2002873461
+#define ULAW_MARKER		1463897173
+#define alaw_MARKER		2002873441
+#define ALAW_MARKER		1463897153
 
-#define DWVW_MARKER		(MAKE_MARKER ('D', 'W', 'V', 'W'))
-#define GSM_MARKER		(MAKE_MARKER ('G', 'S', 'M', ' '))
-#define ima4_MARKER		(MAKE_MARKER ('i', 'm', 'a', '4'))
+#define DWVW_MARKER		1465276228
+#define GSM_MARKER		541938503
+#define ima4_MARKER		878800233
 
 /*
 **	This value is officially assigned to Mega Nerd Pty Ltd by Apple
@@ -86,13 +86,13 @@
 **
 **	See : http://developer.apple.com/faq/datatype.html
 */
-#define m3ga_MARKER		(MAKE_MARKER ('m', '3', 'g', 'a'))
+#define m3ga_MARKER		1634153325
 
 /* Unsupported AIFC encodings.*/
 
-#define MAC3_MARKER		(MAKE_MARKER ('M', 'A', 'C', '3'))
-#define MAC6_MARKER		(MAKE_MARKER ('M', 'A', 'C', '6'))
-#define ADP4_MARKER		(MAKE_MARKER ('A', 'D', 'P', '4'))
+#define MAC3_MARKER		860045645
+#define MAC6_MARKER		910377293
+#define ADP4_MARKER		877675585
 
 /* Predfined chunk sizes. */
 #define SIZEOF_AIFF_COMM		18
@@ -812,7 +812,7 @@ aiff_read_header (SF_PRIVATE *psf, COMM_CHUNK *comm_fmt)
 
 							psf->cues->cue_points [n].indx = mark_id ;
 							psf->cues->cue_points [n].position = 0 ;
-							psf->cues->cue_points [n].fcc_chunk = MAKE_MARKER ('d', 'a', 't', 'a') ; /* always data */
+							psf->cues->cue_points [n].fcc_chunk = 1635017060; //MAKE_MARKER ('d', 'a', 't', 'a') ; /* always data */
 							psf->cues->cue_points [n].chunk_start = 0 ;
 							psf->cues->cue_points [n].block_start = 0 ;
 							psf->cues->cue_points [n].sample_offset = position ;
