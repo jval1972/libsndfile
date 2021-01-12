@@ -16,6 +16,9 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+#ifndef SNDFILE_CHANMAP_H
+#define SNDFILE_CHANMAP_H
+
 typedef struct
 {	/* The tag in the AIFF or CAF file. */
 	int channel_layout_tag ;
@@ -30,3 +33,5 @@ typedef struct
 int aiff_caf_find_channel_layout_tag (const int *chan_map, int channels) ;
 
 const AIFF_CAF_CHANNEL_MAP * aiff_caf_of_channel_layout_tag (int tag) ;
+
+#endif

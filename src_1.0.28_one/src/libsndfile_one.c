@@ -2002,8 +2002,8 @@ aiff_get_chunk_data (SF_PRIVATE *psf, const SF_CHUNK_ITERATOR * iterator, SF_CHU
 #include	"sndfile.h"
 #include	"sfendian.h"
 #include	"common.h"
-#include	"ALAC/alac_codec.h"
-#include	"ALAC/ALACBitUtilities.h"
+#include	"alac_codec.h"
+#include	"ALACBitUtilities.h"
 
 #define		ALAC_MAX_FRAME_SIZE		8192
 #define		ALAC_BYTE_BUFFER_SIZE	0x20000
@@ -14305,13 +14305,6 @@ f2i_clip_array (const float *src, int count, int *dest, float scale)
 } /* f2i_clip_array */
 
 static void
-f2d_array (const float *src, int count, double *dest)
-{	while (--count >= 0)
-	{	dest [count] = src [count] ;
-		} ;
-} /* f2d_array */
-
-static void
 s2f_array (const short *src, float *dest, int count, float scale)
 {	while (--count >= 0)
 	{	dest [count] = scale * src [count] ;
@@ -14324,13 +14317,6 @@ i2f_array (const int *src, float *dest, int count, float scale)
 	{	dest [count] = scale * src [count] ;
 		} ;
 } /* i2f_array */
-
-static void
-d2f_array (const double *src, float *dest, int count)
-{	while (--count >= 0)
-	{	dest [count] = src [count] ;
-		} ;
-} /* d2f_array */
 
 /*----------------------------------------------------------------------------------------------
 */

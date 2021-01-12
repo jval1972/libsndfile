@@ -27,7 +27,8 @@
       ..\obj\add.obj ..\obj\code.obj ..\obj\decode.obj ..\obj\gsm_create.obj 
       ..\obj\gsm_decode.obj ..\obj\gsm_destroy.obj ..\obj\gsm_encode.obj 
       ..\obj\gsm_option.obj ..\obj\long_term.obj ..\obj\lpc.obj 
-      ..\obj\preprocess.obj ..\obj\rpe.obj ..\obj\short_term.obj"/>
+      ..\obj\preprocess.obj ..\obj\rpe.obj ..\obj\short_term.obj 
+      ..\obj\sfendian.obj"/>
     <RESFILES value=""/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -166,6 +167,7 @@
       <FILE FILENAME="GSM610\preprocess.c" FORMNAME="" UNITNAME="preprocess.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="GSM610\rpe.c" FORMNAME="" UNITNAME="rpe.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="GSM610\short_term.c" FORMNAME="" UNITNAME="short_term.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="sfendian.c" FORMNAME="" UNITNAME="sfendian" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

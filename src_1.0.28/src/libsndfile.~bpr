@@ -22,9 +22,9 @@
       ..\obj\wve.obj ..\obj\xi.obj ..\obj\matrix_enc.obj ..\obj\ag_dec.obj 
       ..\obj\ag_enc.obj ..\obj\alac_decoder.obj ..\obj\alac_encoder.obj 
       ..\obj\ALACBitUtilities.obj ..\obj\dp_dec.obj ..\obj\dp_enc.obj 
-      ..\obj\matrix_dec.obj ..\obj\g723_40.obj ..\obj\g721.obj 
-      ..\obj\g723_16.obj ..\obj\g723_24.obj ..\obj\table.obj ..\obj\add.obj 
-      ..\obj\code.obj ..\obj\decode.obj ..\obj\gsm_create.obj 
+      ..\obj\matrix_dec.obj ..\obj\g72x_main.obj ..\obj\g721.obj 
+      ..\obj\g723_16.obj ..\obj\g723_24.obj ..\obj\g723_40.obj ..\obj\table.obj 
+      ..\obj\add.obj ..\obj\code.obj ..\obj\decode.obj ..\obj\gsm_create.obj 
       ..\obj\gsm_decode.obj ..\obj\gsm_destroy.obj ..\obj\gsm_encode.obj 
       ..\obj\gsm_option.obj ..\obj\long_term.obj ..\obj\lpc.obj 
       ..\obj\preprocess.obj ..\obj\rpe.obj ..\obj\short_term.obj"/>
@@ -43,7 +43,7 @@
       inetdbbde.bpi inetdbxpress.bpi inetdb.bpi nmfast.bpi webdsnap.bpi 
       bcbie.bpi websnap.bpi soaprtl.bpi dclocx.bpi dbexpress.bpi dbxcds.bpi 
       indy.bpi bcb2kaxserver.bpi"/>
-    <PATHCPP value=".;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;G72x;G72x;G72x;G72x;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610"/>
+    <PATHCPP value=".;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;ALAC;G72x;G72x;G72x;G72x;G72x;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610;GSM610"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -147,10 +147,11 @@
       <FILE FILENAME="ALAC\dp_dec.c" FORMNAME="" UNITNAME="dp_dec.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ALAC\dp_enc.c" FORMNAME="" UNITNAME="dp_enc.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ALAC\matrix_dec.c" FORMNAME="" UNITNAME="matrix_dec.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="G72x\g723_40.c" FORMNAME="" UNITNAME="g723_40.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="G72x\g72x_main.c" FORMNAME="" UNITNAME="g72x_main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="G72x\g721.c" FORMNAME="" UNITNAME="g721.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="G72x\g723_16.c" FORMNAME="" UNITNAME="g723_16.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="G72x\g723_24.c" FORMNAME="" UNITNAME="g723_24.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="G72x\g723_40.c" FORMNAME="" UNITNAME="g723_40.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="GSM610\table.c" FORMNAME="" UNITNAME="table.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="GSM610\add.c" FORMNAME="" UNITNAME="add.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="GSM610\code.c" FORMNAME="" UNITNAME="code.c" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
