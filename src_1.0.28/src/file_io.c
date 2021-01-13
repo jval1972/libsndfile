@@ -545,9 +545,10 @@ psf_open_fd (PSF_FILE * pfile)
 	** "sfconfig.h" being included after <stdio.h>.
 	*/
 	if (sizeof (sf_count_t) != 8)
-	{	puts ("\n\n*** Fatal error : sizeof (sf_count_t) != 8") ;
-		puts ("*** This means that libsndfile was not configured correctly.\n") ;
-		exit (1) ;
+	{
+//              puts ("\n\n*** Fatal error : sizeof (sf_count_t) != 8") ;
+//		puts ("*** This means that libsndfile was not configured correctly.\n") ;
+		return (0) ;
 		} ;
 
 	switch (pfile->mode)

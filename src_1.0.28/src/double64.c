@@ -352,7 +352,7 @@ double64_be_write (double in, unsigned char *out)
 
 	memset (out, 0, sizeof (double)) ;
 
-	if (fabs (in) < 1e-30)
+	if ((in > 0 ? in : -in )< 1e-30)
 		return ;
 
 	if (in < 0.0)
@@ -392,7 +392,7 @@ double64_le_write (double in, unsigned char *out)
 
 	memset (out, 0, sizeof (double)) ;
 
-	if (fabs (in) < 1e-30)
+	if ((in > 0 ? in : -in ) < 1e-30)
 		return ;
 
 	if (in < 0.0)
@@ -437,11 +437,11 @@ double64_peak_update	(SF_PRIVATE *psf, const double *buffer, int count, sf_count
 	float	fmaxval ;
 
 	for (chan = 0 ; chan < psf->sf.channels ; chan++)
-	{	fmaxval = fabs (buffer [chan]) ;
+	{	fmaxval = buffer [chan] > 0 ? buffer [chan] : - buffer [chan] ;
 		position = 0 ;
 		for (k = chan ; k < count ; k += psf->sf.channels)
-			if (fmaxval < fabs (buffer [k]))
-			{	fmaxval = fabs (buffer [k]) ;
+			if (fmaxval < (buffer [k] > 0 ? buffer [k] : -buffer [k]))
+			{	fmaxval = (buffer [k] > 0 ? buffer [k] : - buffer [k]) ;
 				position = k ;
 				} ;
 

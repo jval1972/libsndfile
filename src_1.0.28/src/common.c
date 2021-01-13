@@ -94,6 +94,20 @@ log_putchar (SF_PRIVATE *psf, char ch)
 	return ;
 } /* log_putchar */
 
+int myisdigit(char c) {
+  if(c=='0') return 1;
+  if(c=='1') return 1;
+  if(c=='2') return 1;
+  if(c=='3') return 1;
+  if(c=='4') return 1;
+  if(c=='5') return 1;
+  if(c=='6') return 1;
+  if(c=='7') return 1;
+  if(c=='8') return 1;
+  if(c=='9') return 1;
+  return 0;
+}
+
 void
 psf_log_printf (SF_PRIVATE *psf, const char *format, ...)
 {	va_list		ap ;
@@ -144,7 +158,7 @@ psf_log_printf (SF_PRIVATE *psf, const char *format, ...)
 			lead_char = '0' ;
 
 		width_specifier = 0 ;
-		while ((c = *format++) && isdigit (c))
+		while ((c = *format++) && myisdigit (c))
 			width_specifier = width_specifier * 10 + (c - '0') ;
 
 		switch (c)
@@ -1159,6 +1173,7 @@ psf_default_seek (SF_PRIVATE *psf, int UNUSED (mode), sf_count_t samples_from_st
 /*-----------------------------------------------------------------------------------------------
 */
 
+#if STRINGS_DEBUG
 void
 psf_hexdump (const void *ptr, int len)
 {	const char *data ;
@@ -1189,7 +1204,7 @@ psf_hexdump (const void *ptr, int len)
 
 	puts ("") ;
 } /* psf_hexdump */
-
+#endif
 void
 psf_log_SF_INFO (SF_PRIVATE *psf)
 {	psf_log_printf (psf, "---------------------------------\n") ;

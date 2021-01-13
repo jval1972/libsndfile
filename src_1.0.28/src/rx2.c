@@ -189,7 +189,7 @@ rx2_open	(SF_PRIVATE *psf)
 
 						psf_binheader_readf (psf, "E4444", &len [0], &len [1], &len [2], &len [3]) ;
 
-						indx = ((len [3] & 0x0000FFFF) >> 8) & 3 ;
+		    				indx = ((len [3] & 0x0000FFFF) >> 8) & 3 ;
 
 						if (len [2] == 1)
 						{	if (indx != 1)

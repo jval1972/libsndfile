@@ -1033,7 +1033,9 @@ FILE *	psf_open_tmpfile (char * fname, size_t fnamelen) ;
 ** Helper/debug functions.
 */
 
+#if STRINGS_DEBUG
 void	psf_hexdump (const void *ptr, int len) ;
+#endif
 
 const char * str_of_major_format (int format) ;
 const char * str_of_minor_format (int format) ;

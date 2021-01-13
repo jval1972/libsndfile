@@ -65,7 +65,7 @@ interleave_init	(SF_PRIVATE *psf)
 	if (! (pdata = malloc (sizeof (INTERLEAVE_DATA))))
 		return SFE_MALLOC_FAILED ;
 
-puts ("interleave_init") ;
+//puts ("interleave_init") ;
 
 	psf->interleave = pdata ;
 

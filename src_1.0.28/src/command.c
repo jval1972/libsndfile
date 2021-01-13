@@ -301,7 +301,7 @@ psf_calc_signal_max (SF_PRIVATE *psf, int normalize)
 	for (readcount = 1, max_val = 0.0 ; readcount > 0 ; /* nothing */)
 	{	readcount = sf_read_double ((SNDFILE*) psf, data, len) ;
 		for (k = 0 ; k < readcount ; k++)
-		{	temp = fabs (data [k]) ;
+		{	temp = data [k] > 0? data [k]: -data [k];
 			max_val = temp > max_val ? temp : max_val ;
 			} ;
 		} ;
@@ -346,7 +346,7 @@ psf_calc_max_all_channels (SF_PRIVATE *psf, double *peaks, int normalize)
 	while (readcount > 0)
 	{	readcount = sf_read_double ((SNDFILE*) psf, data, len) ;
 		for (k = 0 ; k < readcount ; k++)
-		{	temp = fabs (data [k]) ;
+		{	temp = data [k] > 0 ? data [k] : -data [k];
 			peaks [chan] = temp > peaks [chan] ? temp : peaks [chan] ;
 			chan = (chan + 1) % psf->sf.channels ;
 			} ;
