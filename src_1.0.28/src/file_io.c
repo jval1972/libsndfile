@@ -52,6 +52,7 @@
 
 #include "sndfile.h"
 #include "common.h"
+#include "file_io.h"
 
 #define	SENSIBLE_SIZE	(0x40000000)
 
@@ -65,6 +66,23 @@
 #endif
 
 static void psf_log_syserr (SF_PRIVATE *psf, int error) ;
+
+
+int filewrite(void *ptr, int size, int count, int stream);
+
+int fileclose(int stream);
+
+int filetruncate(int stream, int len);
+
+// macro helpers
+int read (int stream, void *ptr, int count){
+        return fileread(ptr, 1, count, stream);
+}
+
+int write (int stream, void *ptr, int count){
+        return filewrite(ptr, 1, count, stream);
+}
+
 
 #if (USE_WINDOWS_API == 0)
 
@@ -271,7 +289,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 
 		case SEEK_END :
 				if (psf->file.mode == SFM_WRITE)
-				{	new_position = lseek (psf->file.filedes, offset, whence) ;
+				{	new_position = fileseek (psf->file.filedes, offset, whence) ;
 
 					if (new_position < 0)
 						psf_log_syserr (psf, errno) ;
@@ -284,7 +302,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 				** get the offset wrt the start of file.
 				*/
 				whence = SEEK_SET ;
-				offset = lseek (psf->file.filedes, 0, SEEK_END) + offset ;
+				offset = fileseek (psf->file.filedes, 0, SEEK_END) + offset ;
 				break ;
 
 		case SEEK_CUR :
@@ -300,7 +318,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 		} ;
 
 	if (current_pos != offset)
-		new_position = lseek (psf->file.filedes, offset, whence) ;
+		new_position = fileseek (psf->file.filedes, offset, whence) ;
 	else
 		new_position = offset ;
 
@@ -407,7 +425,7 @@ psf_ftell (SF_PRIVATE *psf)
 	if (psf->is_pipe)
 		return psf->pipeoffset ;
 
-	pos = lseek (psf->file.filedes, 0, SEEK_CUR) ;
+	pos = fileseek (psf->file.filedes, 0, SEEK_CUR) ;
 
 	if (pos == ((sf_count_t) -1))
 	{	psf_log_syserr (psf, errno) ;
@@ -424,7 +442,7 @@ psf_close_fd (int fd)
 	if (fd < 0)
 		return 0 ;
 
-	while ((retval = close (fd)) == -1 && errno == EINTR)
+	while ((retval = fileclose (fd)) == -1 && errno == EINTR)
 		/* Do nothing. */ ;
 
 	return retval ;
@@ -486,12 +504,13 @@ psf_get_filelen_fd (int fd)
 
 	return statbuf.st_size ;
 #else
-	struct stat statbuf ;
+//	struct stat statbuf ;
 
-	if (fstat (fd, &statbuf) == -1)
-		return (sf_count_t) -1 ;
+        return filesize(fd);
+//	if (fstat (fd, &statbuf) == -1)
+//		return (sf_count_t) -1 ;
 
-	return statbuf.st_size ;
+//	return statbuf.st_size ;
 //        return _getfilesize(fd);
 #endif
 } /* psf_get_filelen_fd */
@@ -507,7 +526,7 @@ psf_ftruncate (SF_PRIVATE *psf, sf_count_t len)
 	if ((sizeof (off_t) < sizeof (sf_count_t)) && len > 0x7FFFFFFF)
 		return -1 ;
 
-	retval = ftruncate (psf->file.filedes, len) ;
+	retval = filetruncate (psf->file.filedes, len) ;
 
 	if (retval == -1)
 		psf_log_syserr (psf, errno) ;
@@ -575,9 +594,9 @@ psf_open_fd (PSF_FILE * pfile)
 		} ;
 
 	if (mode == 0)
-		fd = open (pfile->path.c, oflag) ;
+		fd = fileopenr(pfile->path.c);
 	else
-		fd = open (pfile->path.c, oflag, mode) ;
+		fd = fileopenw(pfile->path.c);
 
 	return fd ;
 } /* psf_open_fd */

@@ -371,7 +371,9 @@ printf ("%s %d\n", __func__, __LINE__) ;
 	{	fprintf (stderr, "Invalid/corrupted comments\n") ;
 		return ;
 		}
-	(void) fwrite (c, 1, len, stderr) ;
+        #if 0
+	(void) filewrite (c, 1, len, stderr) ;
+        #endif
 	c += len ;
 	fprintf (stderr, "\n") ;
 	if (c + 4 > end)
@@ -391,7 +393,9 @@ printf ("%s %d\n", __func__, __LINE__) ;
 		{	fprintf (stderr, "Invalid/corrupted comments\n") ;
 			return ;
 			}
+                #if 0
 		(void) fwrite (c, 1, len, stderr) ;
+                #endif
 		c += len ;
 		fprintf (stderr, "\n") ;
 		} ;

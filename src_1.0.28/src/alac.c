@@ -28,6 +28,7 @@
 #include	"sndfile.h"
 #include	"sfendian.h"
 #include	"common.h"
+#include        "file_io.h"
 #include	"ALAC/alac_codec.h"
 #include	"ALAC/ALACBitUtilities.h"
 
@@ -60,7 +61,7 @@ typedef struct
 	} ;
 
 	char enctmpname [512] ;
-	FILE *enctmp ;
+	int enctmp ;
 
 	uint8_t	byte_buffer [ALAC_MAX_CHANNEL_COUNT * ALAC_BYTE_BUFFER_SIZE] ;
 
@@ -205,11 +206,11 @@ alac_close	(SF_PRIVATE *psf)
 		psf->write_header (psf, 1) ;
 
 		if (plac->enctmp != NULL)
-		{	fseek (plac->enctmp, 0, SEEK_SET) ;
+		{	fileseek (plac->enctmp, 0, SEEK_SET) ;
 
-			while ((readcount = fread (ubuf.ucbuf, 1, sizeof (ubuf.ucbuf), plac->enctmp)) > 0)
+			while ((readcount = fileread (ubuf.ucbuf, 1, sizeof (ubuf.ucbuf), plac->enctmp)) > 0)
 				psf_fwrite (ubuf.ucbuf, 1, readcount, psf) ;
-			fclose (plac->enctmp) ;
+			fileclose (plac->enctmp) ;
 			remove (plac->enctmpname) ;
 			} ;
 		} ;
@@ -443,7 +444,7 @@ alac_encode_block (ALAC_PRIVATE *plac)
 
 	alac_encode (penc, plac->partial_block_frames, plac->buffer, plac->byte_buffer, &num_bytes) ;
 
-	if (fwrite (plac->byte_buffer, 1, num_bytes, plac->enctmp) != num_bytes)
+	if (filewrite (plac->byte_buffer, 1, num_bytes, plac->enctmp) != num_bytes)
 		return 0 ;
 	if ((plac->pakt_info = alac_pakt_append (plac->pakt_info, num_bytes)) == NULL)
 		return 0 ;

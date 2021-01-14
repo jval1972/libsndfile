@@ -1732,10 +1732,9 @@ psf_d2i_clip_array (const double *src, int *dest, int count, int normalize)
 	return ;
 } /* psf_d2i_clip_array */
 
-FILE *
-psf_open_tmpfile (char * fname, size_t fnamelen)
+int psf_open_tmpfile (char * fname, size_t fnamelen)
 {	const char * tmpdir ;
-	FILE * file ;
+	int file ;
 
 	if (OS_IS_WIN32)
 		tmpdir = getenv ("TEMP") ;
@@ -1746,12 +1745,12 @@ psf_open_tmpfile (char * fname, size_t fnamelen)
 
 	if (tmpdir)
 	{	snprintf (fname, fnamelen, "%s/%x%x-alac.tmp", tmpdir, psf_rand_int32 (), psf_rand_int32 ()) ;
-		if ((file = fopen (fname, "wb+")) != NULL)
+		if ((file = fileopenw (fname)) != 0)
 			return file ;
 		} ;
 
 	snprintf (fname, fnamelen, "%x%x-alac.tmp", psf_rand_int32 (), psf_rand_int32 ()) ;
-	if ((file = fopen (fname, "wb+")) != NULL)
+	if ((file = fileopenw (fname)) != 0)
 		return file ;
 
 	memset (fname, 0, fnamelen) ;
