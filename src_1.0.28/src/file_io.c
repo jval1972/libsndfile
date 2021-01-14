@@ -790,23 +790,23 @@ psf_open_handle (PSF_FILE * pfile)
 
 	if (pfile->use_wchar)
 		handle = CreateFileW (
-					pfile->path.wc,				/* pointer to name of the file */
-					dwDesiredAccess,			/* access (read-write) mode */
-					dwShareMode,				/* share mode */
-					0,							/* pointer to security attributes */
+					pfile->path.wc,		       	/* pointer to name of the file */
+					dwDesiredAccess,	       	/* access (read-write) mode */
+					dwShareMode,		       	/* share mode */
+					0,			       	/* pointer to security attributes */
 					dwCreationDistribution,		/* how to create */
 					FILE_ATTRIBUTE_NORMAL,		/* file attributes (could use FILE_FLAG_SEQUENTIAL_SCAN) */
 					NULL						/* handle to file with attributes to copy */
 					) ;
 	else
 		handle = CreateFile (
-					pfile->path.c,				/* pointer to name of the file */
-					dwDesiredAccess,			/* access (read-write) mode */
-					dwShareMode,				/* share mode */
-					0,							/* pointer to security attributes */
+					pfile->path.c,		       	/* pointer to name of the file */
+					dwDesiredAccess,	       	/* access (read-write) mode */
+					dwShareMode,		       	/* share mode */
+					0,			       	/* pointer to security attributes */
 					dwCreationDistribution,		/* how to create */
 					FILE_ATTRIBUTE_NORMAL,		/* file attributes (could use FILE_FLAG_SEQUENTIAL_SCAN) */
-					NULL						/* handle to file with attributes to copy */
+					NULL			       	/* handle to file with attributes to copy */
 					) ;
 
 	if (handle == INVALID_HANDLE_VALUE)
