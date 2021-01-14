@@ -237,9 +237,9 @@ alac_byterate	(SF_PRIVATE *psf)
 static int
 alac_reader_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 {	ALAC_PRIVATE	*plac ;
-	uint32_t		kuki_size ;
-	int				error ;
-	union			{ uint8_t kuki [512] ; uint32_t alignment ; } u ;
+	uint32_t	kuki_size ;
+	int		error ;
+	union		{ uint8_t kuki [512] ; uint32_t alignment ; } u ;
 
 	if (info == NULL)
 	{	psf_log_printf (psf, "%s : ALAC_DECODER_INFO is NULL.\n", "alac_reader_init") ;
@@ -308,7 +308,7 @@ alac_reader_init (SF_PRIVATE *psf, const ALAC_DECODER_INFO * info)
 static int
 alac_writer_init (SF_PRIVATE *psf)
 {	ALAC_PRIVATE	*plac ;
-	uint32_t		alac_format_flags = 0 ;
+	uint32_t	alac_format_flags = 0 ;
 
 	plac = psf->codec_data ;
 
