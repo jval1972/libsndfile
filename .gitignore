@@ -149,3 +149,6 @@ CMakeSettings.json
 /out/
 *.~dsk
 *.~dsk
+*.~bpr
+*.~bpr
+*.~bpr
