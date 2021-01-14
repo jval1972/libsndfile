@@ -42,7 +42,7 @@ typedef struct
 static void vote_for_format (VOTE * vote, const unsigned char * data, int datalen) ;
 
 int
-audio_detect (SF_PRIVATE * psf, AUDIO_DETECT *ad, const unsigned char * data, int datalen)
+audio_detect (SF_PRIVATE * psf, AUDIO_DETECT_T *ad, const unsigned char * data, int datalen)
 {	VOTE vote ;
 
 	if (psf == NULL)
