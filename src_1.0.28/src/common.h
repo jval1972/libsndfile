@@ -327,6 +327,8 @@ psf_isprint (int ch)
 **	contents.
 */
 
+#define USE_WINDOWS_API 0
+
 typedef struct
 {
 	union
@@ -351,14 +353,14 @@ typedef struct
 	*/
 	void 			*handle, *hsaved ;
 
-	int				use_wchar ;
+	int			use_wchar ;
 #else
 	/* These fields can only be used in src/file_io.c. */
 	int 			filedes, savedes ;
 #endif
 
-	int				do_not_close_descriptor ;
-	int				mode ;			/* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
+	int			do_not_close_descriptor ;
+	int			mode ;			/* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
 } PSF_FILE ;
 
 
@@ -421,34 +423,34 @@ typedef struct sf_private_tag
 	} strings ;
 
 	/* Guard value. If this changes the buffers above have overflowed. */
-	int				Magick ;
+	int			Magick ;
 
 	unsigned		unique_id ;
 
-	int				error ;
+	int			error ;
 
-	int				endian ;		/* File endianness : SF_ENDIAN_LITTLE or SF_ENDIAN_BIG. */
-	int				data_endswap ;	/* Need to endswap data? */
+	int			endian ;		/* File endianness : SF_ENDIAN_LITTLE or SF_ENDIAN_BIG. */
+	int			data_endswap ;	/* Need to endswap data? */
 
 	/*
 	** Maximum float value for calculating the multiplier for
 	** float/double to short/int conversions.
 	*/
-	int				float_int_mult ;
+	int			float_int_mult ;
 	float			float_max ;
 
-	int				scale_int_float ;
+	int			scale_int_float ;
 
 	/* Vairables for handling pipes. */
-	int				is_pipe ;		/* True if file is a pipe. */
+	int			is_pipe ;		/* True if file is a pipe. */
 	sf_count_t		pipeoffset ;	/* Number of bytes read from a pipe. */
 
 	/* True if clipping must be performed on float->int conversions. */
-	int				add_clipping ;
+	int			add_clipping ;
 
 	SF_INFO			sf ;
 
-	int				have_written ;	/* Has a single write been done to the file? */
+	int			have_written ;	/* Has a single write been done to the file? */
 	PEAK_INFO		*peak_info ;
 
 	/* Cue Marker Info */
@@ -465,7 +467,7 @@ typedef struct sf_private_tag
 	SF_CART_INFO_16K *cart_16k ;
 
 	/* Channel map data (if present) : an array of ints. */
-	int				*channel_map ;
+	int			*channel_map ;
 
 	sf_count_t		filelength ;	/* Overall length of (embedded) file. */
 	sf_count_t		fileoffset ;	/* Offset in number of bytes from beginning of file. */
@@ -476,19 +478,19 @@ typedef struct sf_private_tag
 	sf_count_t		datalength ;	/* Length in bytes of the audio data. */
 	sf_count_t		dataend ;		/* Offset to file tailer. */
 
-	int				blockwidth ;	/* Size in bytes of one set of interleaved samples. */
-	int				bytewidth ;		/* Size in bytes of one sample (one channel). */
+	int			blockwidth ;	/* Size in bytes of one set of interleaved samples. */
+	int			bytewidth ;		/* Size in bytes of one sample (one channel). */
 
 	void			*dither ;
 	void			*interleave ;
 
-	int				last_op ;		/* Last operation; either SFM_READ or SFM_WRITE */
+	int			last_op ;		/* Last operation; either SFM_READ or SFM_WRITE */
 	sf_count_t		read_current ;
 	sf_count_t		write_current ;
 
 	void			*container_data ;	/*	This is a pointer to dynamically allocated file
-										**	container format specific data.
-										*/
+							**	container format specific data.
+							*/
 
 	void			*codec_data ;		/*	This is a pointer to dynamically allocated file
 										**	codec format specific data.
@@ -497,12 +499,12 @@ typedef struct sf_private_tag
 	SF_DITHER_INFO	write_dither ;
 	SF_DITHER_INFO	read_dither ;
 
-	int				norm_double ;
-	int				norm_float ;
+	int			norm_double ;
+	int			norm_float ;
 
-	int				auto_header ;
+	int			auto_header ;
 
-	int				ieee_replace ;
+	int			ieee_replace ;
 
 	/* A set of file specific function pointers */
 	sf_count_t		(*read_short)	(struct sf_private_tag*, short *ptr, sf_count_t len) ;
@@ -516,34 +518,34 @@ typedef struct sf_private_tag
 	sf_count_t		(*write_double)	(struct sf_private_tag*, const double *ptr, sf_count_t len) ;
 
 	sf_count_t		(*seek) 		(struct sf_private_tag*, int mode, sf_count_t samples_from_start) ;
-	int				(*write_header)	(struct sf_private_tag*, int calc_length) ;
-	int				(*command)		(struct sf_private_tag*, int command, void *data, int datasize) ;
-	int				(*byterate)		(struct sf_private_tag*) ;
+	int			(*write_header)	(struct sf_private_tag*, int calc_length) ;
+	int			(*command)		(struct sf_private_tag*, int command, void *data, int datasize) ;
+	int			(*byterate)		(struct sf_private_tag*) ;
 
 	/*
 	**	Separate close functions for the codec and the container.
 	**	The codec close function is always called first.
 	*/
-	int				(*codec_close)		(struct sf_private_tag*) ;
-	int				(*container_close)	(struct sf_private_tag*) ;
+	int			(*codec_close)		(struct sf_private_tag*) ;
+	int			(*container_close)	(struct sf_private_tag*) ;
 
 	char			*format_desc ;
 
 	/* Virtual I/O functions. */
-	int					virtual_io ;
+	int			virtual_io ;
 	SF_VIRTUAL_IO		vio ;
-	void				*vio_user_data ;
+	void			*vio_user_data ;
 
 	/* Chunk get/set. */
 	SF_CHUNK_ITERATOR	*iterator ;
 
-	READ_CHUNKS			rchunks ;
+	READ_CHUNKS		rchunks ;
 	WRITE_CHUNKS		wchunks ;
 
-	int					(*set_chunk)		(struct sf_private_tag*, const SF_CHUNK_INFO * chunk_info) ;
+	int			(*set_chunk)		(struct sf_private_tag*, const SF_CHUNK_INFO * chunk_info) ;
 	SF_CHUNK_ITERATOR *	(*next_chunk_iterator)	(struct sf_private_tag*, SF_CHUNK_ITERATOR * iterator) ;
-	int					(*get_chunk_size)	(struct sf_private_tag*, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
-	int					(*get_chunk_data)	(struct sf_private_tag*, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
+	int			(*get_chunk_size)	(struct sf_private_tag*, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
+	int			(*get_chunk_data)	(struct sf_private_tag*, const SF_CHUNK_ITERATOR * iterator, SF_CHUNK_INFO * chunk_info) ;
 } SF_PRIVATE ;
 
 
@@ -791,7 +793,7 @@ sf_count_t psf_decode_frame_count (SF_PRIVATE *psf) ;
 
 /* Functions used when writing file headers. */
 
-int		psf_binheader_writef	(SF_PRIVATE *psf, const char *format, ...) ;
+int	psf_binheader_writef	(SF_PRIVATE *psf, const char *format, ...) ;
 void	psf_asciiheader_printf	(SF_PRIVATE *psf, const char *format, ...) ;
 
 /* Functions used when reading file headers. */
@@ -1020,9 +1022,9 @@ int		cart_var_get (SF_PRIVATE *psf, SF_CART_INFO * data, size_t datasize) ;
 typedef struct
 {	int channels ;
 	int endianness ;
-} AUDIO_DETECT ;
+} AUDIO_DETECT_T ;
 
-int audio_detect (SF_PRIVATE * psf, AUDIO_DETECT *ad, const unsigned char * data, int datalen) ;
+int audio_detect (SF_PRIVATE * psf, AUDIO_DETECT_T *ad, const unsigned char * data, int datalen) ;
 int id3_skip (SF_PRIVATE * psf) ;
 
 void	alac_get_desc_chunk_items (int subformat, uint32_t *fmt_flags, uint32_t *frames_per_packet) ;
