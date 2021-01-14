@@ -1373,6 +1373,7 @@ psf_ftell (SF_PRIVATE *psf)
 	return pos - psf->fileoffset ;
 } /* psf_ftell */
 
+#define S_ISSOCK(m)	(((m) & S_IFMT) == S_IFSOCK)
 /* Win32 */ int
 psf_fclose (SF_PRIVATE *psf)
 {	int retval ;
