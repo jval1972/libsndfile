@@ -354,7 +354,7 @@ alac_writer_init (SF_PRIVATE *psf)
 	plac->pakt_info = alac_pakt_alloc (2000) ;
 
 	if ((plac->enctmp = psf_open_tmpfile (plac->enctmpname, sizeof (plac->enctmpname))) == NULL)
-	{	psf_log_printf (psf, "Error : Failed to open temp file '%s' : \n", plac->enctmpname, strerror (errno)) ;
+	{	psf_log_printf (psf, "Error : Failed to open temp file, error='%d' : \n", plac->enctmpname, errno) ;
 		return SFE_ALAC_FAIL_TMPFILE ;
 		} ;
 
