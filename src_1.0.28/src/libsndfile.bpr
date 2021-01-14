@@ -51,12 +51,12 @@
     <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
     <RELEASELIBPATH value="$(BCB)\lib\release"/>
     <LINKER value="ilink32"/>
-    <USERDEFINES value="_DEBUG;BUILDER"/>
+    <USERDEFINES value="_DEBUG;BUILDER;"/>
     <SYSDEFINES value="NO_STRICT;_NO_VCL;USEPACKAGES"/>
     <MAINSOURCE value="libsndfile.bpf"/>
     <INCLUDEPATH value="E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src\ALAC;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl;..\src"/>
     <LIBPATH value="E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src\ALAC;&quot;C:\Program Files\Borland\CBuilder6\Projects&quot;;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib"/>
-    <WARNINGS value="-w-spa -w-par"/>
+    <WARNINGS value="-w-spa -w-pia -w-par"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
@@ -201,30 +201,34 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=5
-Item0=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl;..\src
-Item1=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl
-Item2=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl
-Item3=..\src\G72x;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\include;$(BCB)\include\vcl
-Item4=GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\include;$(BCB)\include\vcl
+Count=6
+Item0=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src\ALAC;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl;..\src
+Item1=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl;..\src
+Item2=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl
+Item3=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\include;$(BCB)\include\vcl
+Item4=..\src\G72x;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\include;$(BCB)\include\vcl
+Item5=GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=4
-Item0=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib
-Item1=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib
-Item2=..\src\G72x;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\lib\obj;$(BCB)\lib
-Item3=GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\lib\obj;$(BCB)\lib
+Count=5
+Item0=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src\ALAC;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib
+Item1=C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib
+Item2=E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;$(BCB)\lib\obj;$(BCB)\lib
+Item3=..\src\G72x;C:\Program Files\Borland\CBuilder6\Projects;GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\lib\obj;$(BCB)\lib
+Item4=GSM610;G72x;ALAC;E:\PROGRAMMING\AUDIO_TESTS\libsndfile-1.0.28\src_compile;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
 Item0=$(BCB)\source\vcl
 
 [HistoryLists\hlConditionals]
-Count=4
-Item0=_DEBUG;BUILDER
-Item1=BUILDER
-Item2=_DEBUG; _MSCVER
-Item3=_DEBUG
+Count=6
+Item0=_DEBUG;BUILDER;
+Item1=_DEBUG;BUILDER;USE_WINDOWS_API
+Item2=_DEBUG;BUILDER
+Item3=BUILDER
+Item4=_DEBUG; _MSCVER
+Item5=_DEBUG
 
 [HistoryLists\hlIntOutputDir]
 Count=2
