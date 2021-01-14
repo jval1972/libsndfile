@@ -975,20 +975,20 @@ static const char *
 alac_error_string (int error)
 {	static char errstr [128] ;
 	switch (error)
-	{	CASE_NAME (kALAC_UnimplementedError) ;
-		CASE_NAME (kALAC_FileNotFoundError) ;
-		CASE_NAME (kALAC_ParamError) ;
-		CASE_NAME (kALAC_MemFullError) ;
-		CASE_NAME (fALAC_FrameLengthError) ;
-
-		/* Added for libsndfile */
-		CASE_NAME (kALAC_BadBitWidth) ;
-		CASE_NAME (kALAC_IncompatibleVersion) ;
-		CASE_NAME (kALAC_BadSpecificConfigSize) ;
-		CASE_NAME (kALAC_ZeroChannelCount) ;
-		CASE_NAME (kALAC_NumSamplesTooBig) ;
-		CASE_NAME (kALAC_UnsupportedElement) ;
-		default :
+	{
+                case kALAC_UnimplementedError: return "kALAC_UnimplementedError";
+                case kALAC_FileNotFoundError: return "kALAC_FileNotFoundError";
+                case kALAC_ParamError: return "kALAC_ParamError";
+                case kALAC_MemFullError: return "kALAC_MemFullError";
+                case fALAC_FrameLengthError: return "fALAC_FrameLengthError";
+                /* Added for libsndfile */
+                case kALAC_BadBitWidth: return "kALAC_BadBitWidth";
+                case kALAC_IncompatibleVersion: return "kALAC_IncompatibleVersion";
+                case kALAC_BadSpecificConfigSize: return "kALAC_BadSpecificConfigSize";
+                case kALAC_ZeroChannelCount: return "kALAC_ZeroChannelCount";
+                case kALAC_NumSamplesTooBig: return "kALAC_NumSamplesTooBig";
+                case kALAC_UnsupportedElement: return "kALAC_UnsupportedElement"; 
+		default:
 			break ;
 		} ;
 
