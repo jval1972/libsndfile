@@ -37,7 +37,7 @@ static void Decoding_of_the_coded_Log_Area_Ratios (
 	 *		temp2  = *B << 1;
 	 *		temp1  = GSM_SUB(temp1, temp2) ;
 	 *
-	 *		assert(*INVA != MIN_WORD) ;
+	 *		//assert(*INVA != MIN_WORD) ;
 	 *
 	 *		temp1  = GSM_MULT_R (*INVA, temp1) ;
 	 *		*LARpp = GSM_ADD (temp1, temp1) ;
