@@ -133,7 +133,7 @@ static void RPE_grid_selection (
 	 *
 	 *		temp1	= SASR_W (x[m + 3*i], 2) ;
 	 *
-	 *		assert (temp1 != MIN_WORD) ;
+	 *		//assert (temp1 != MIN_WORD) ;
 	 *
 	 *		L_temp   = GSM_L_MULT(temp1, temp1) ;
 	 *		L_result = GSM_L_ADD(L_temp, L_result) ;
@@ -235,8 +235,8 @@ static void APCM_quantization_xmaxc_to_exp_mant (
 		mant -= 8 ;
 		}
 
-	assert (expon >= -4 && expon <= 6) ;
-	assert (mant >= 0 && mant <= 7) ;
+	//assert (expon >= -4 && expon <= 6) ;
+	//assert (mant >= 0 && mant <= 7) ;
 
 	*expon_out = expon ;
 	*mant_out = mant ;
@@ -277,14 +277,14 @@ static void APCM_quantization (
 	{	itest |= (temp <= 0) ;
 		temp = SASR_W (temp, 1) ;
 
-		assert (expon <= 5) ;
+		//assert (expon <= 5) ;
 		if (itest == 0) expon++ ;		/* expon = add (expon, 1) */
 		}
 
-	assert (expon <= 6 && expon >= 0) ;
+	//assert (expon <= 6 && expon >= 0) ;
 	temp = expon + 5 ;
 
-	assert (temp <= 11 && temp >= 0) ;
+	//assert (temp <= 11 && temp >= 0) ;
 	xmaxc = gsm_add (SASR_W (xmax, temp), (int16_t) (expon << 3)) ;
 
 	/*   Quantizing and coding of the xM [0..12] RPE sequence
@@ -307,14 +307,14 @@ static void APCM_quantization (
 	/* Direct computation of xMc [0..12] using table 4.5
 	 */
 
-	assert (expon <= 4096 && expon >= -4096) ;
-	assert (mant >= 0 && mant <= 7) ;
+	//assert (expon <= 4096 && expon >= -4096) ;
+	//assert (mant >= 0 && mant <= 7) ;
 
 	temp1 = 6 - expon ;			/* normalization by the expononent */
 	temp2 = gsm_NRFAC [mant] ;	/* inverse mantissa 		 */
 
 	for (i = 0 ; i <= 12 ; i++)
-	{	assert (temp1 >= 0 && temp1 < 16) ;
+	{	//assert (temp1 >= 0 && temp1 < 16) ;
 
 		temp = arith_shift_left (xM [i], temp1) ;
 		temp = GSM_MULT (temp, temp2) ;
@@ -346,18 +346,18 @@ static void APCM_inverse_quantization (
 	int	i ;
 	int16_t	temp, temp1, temp2, temp3 ;
 
-	assert (mant >= 0 && mant <= 7) ;
+	//assert (mant >= 0 && mant <= 7) ;
 
 	temp1 = gsm_FAC [mant] ;	/* see 4.2-15 for mant */
 	temp2 = gsm_sub (6, expon) ;	/* see 4.2-15 for exp  */
 	temp3 = gsm_asl (1, gsm_sub (temp2, 1)) ;
 
 	for (i = 13 ; i-- ;)
-	{	assert (*xMc <= 7 && *xMc >= 0) ;	/* 3 bit unsigned */
+	{	//assert (*xMc <= 7 && *xMc >= 0) ;	/* 3 bit unsigned */
 
 		/* temp = gsm_sub (*xMc++ << 1, 7) ; */
 		temp = (*xMc++ << 1) - 7 ;			/* restore sign   */
-		assert (temp <= 7 && temp >= -7) ;	/* 4 bit signed   */
+		//assert (temp <= 7 && temp >= -7) ;	/* 4 bit signed   */
 
 		temp = arith_shift_left (temp, 12) ;	/* 16 bit signed  */
 		temp = GSM_MULT_R (temp1, temp) ;
@@ -383,7 +383,7 @@ static void RPE_grid_positioning (
 {
 	int	i = 13 ;
 
-	assert (0 <= Mc && Mc <= 3) ;
+	//assert (0 <= Mc && Mc <= 3) ;
 
 	switch (Mc)
 	{	case 3: *ep++ = 0 ;

@@ -47,7 +47,7 @@ static void Autocorrelation (
 	if (smax == 0)
 		scalauto = 0 ;
 	else
-	{	assert (smax > 0) ;
+	{	//assert (smax > 0) ;
 		scalauto = 4 - gsm_norm ((int32_t) smax << 16) ;	/* sub (4,..) */
 		}
 
@@ -133,7 +133,7 @@ static void Autocorrelation (
 	/*   Rescaling of the array s [0..159]
 	 */
 	if (scalauto > 0)
-	{	assert (scalauto <= 4) ;
+	{	//assert (scalauto <= 4) ;
 		for (k = 160 ; k-- ; s++)
 			*s = SASL_W (*s, scalauto) ;
 		}
@@ -187,10 +187,10 @@ static void Reflection_coefficients (
 		return ;
 		}
 
-	assert (L_ACF [0] != 0) ;
+	//assert (L_ACF [0] != 0) ;
 	temp = gsm_norm (L_ACF [0]) ;
 
-	assert (temp >= 0 && temp < 32) ;
+	//assert (temp >= 0 && temp < 32) ;
 
 	/* ? overflow ? */
 	for (i = 0 ; i <= 8 ; i++) ACF [i] = SASR_L (SASL_L (L_ACF [i], temp), 16) ;
@@ -213,9 +213,9 @@ static void Reflection_coefficients (
 
 		*r = gsm_div (temp, P [0]) ;
 
-		assert (*r >= 0) ;
+		//assert (*r >= 0) ;
 		if (P [1] > 0) *r = -*r ;		/* r [n] = sub (0, r [n]) */
-		assert (*r != MIN_WORD) ;
+		//assert (*r != MIN_WORD) ;
 		if (n == 8) return ;
 
 		/*  Schur recursion
@@ -255,23 +255,23 @@ static void Transformation_to_Log_Area_Ratios (
 	for (i = 1 ; i <= 8 ; i++, r++)
 	{	temp = *r ;
 		temp = GSM_ABS (temp) ;
-		assert (temp >= 0) ;
+		//assert (temp >= 0) ;
 
 		if (temp < 22118)
 		{	temp >>= 1 ;
 			}
 		else if (temp < 31130)
-		{	assert (temp >= 11059) ;
+		{	//assert (temp >= 11059) ;
 			temp -= 11059 ;
 			}
 		else
-		{	assert (temp >= 26112) ;
+		{	//assert (temp >= 26112) ;
 			temp -= 26112 ;
 			temp <<= 2 ;
 			}
 
 		*r = *r < 0 ? -temp : temp ;
-		assert (*r != MIN_WORD) ;
+		//assert (*r != MIN_WORD) ;
 	}
 }
 

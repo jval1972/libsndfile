@@ -55,7 +55,7 @@ int16_t gsm_abs (int16_t a)
 int32_t gsm_L_mult (int16_t a, int16_t b)
 {
 #if 0
-	assert (a != MIN_WORD || b != MIN_WORD) ;
+//	assert (a != MIN_WORD || b != MIN_WORD) ;
 #endif
 	return ((int32_t) a * (int32_t) b) << 1 ;
 }
@@ -138,7 +138,7 @@ int16_t gsm_norm (int32_t a)
  */
 {
 #if 0
-	assert (a != 0) ;
+//	assert (a != 0) ;
 #endif        
 
 	if (a < 0)
@@ -229,7 +229,7 @@ int16_t gsm_div (int16_t num, int16_t denum)
 	/* assert (num != 0) ; */
 
 #if 0
-	assert (num >= 0 && denum >= num) ;
+//	assert (num >= 0 && denum >= num) ;
 #endif        
 	if (num == 0)
 		return 0 ;

@@ -75,12 +75,12 @@ static void Cut_Calculation_of_the_LTP_parameters (
 	if (dmax == 0)
 		scal = 0 ;
 	else
-	{	assert (dmax > 0) ;
+	{	//assert (dmax > 0) ;
 		temp = gsm_norm ((int32_t) dmax << 16) ;
 		}
 	if (temp > 6) scal = 0 ;
 	else scal = 6 - temp ;
-	assert (scal >= 0) ;
+	//assert (scal >= 0) ;
 
 	/* Search for the maximum cross-correlation and coding of the LTP lag
 	 */
@@ -100,10 +100,10 @@ static void Cut_Calculation_of_the_LTP_parameters (
 
 	/*  Rescaling of L_max
 	 */
-	assert (scal <= 100 && scal >= -100) ;
+	//assert (scal <= 100 && scal >= -100) ;
 	L_max = L_max >> (6 - scal) ;	/* sub (6, scal) */
 
-	assert (Nc <= 120 && Nc >= 40) ;
+	//assert (Nc <= 120 && Nc >= 40) ;
 
 	/*   Compute the power of the reconstructed short term residual
 	 *   signal dp [..]
@@ -173,14 +173,14 @@ static void Calculation_of_the_LTP_parameters (
 	if (dmax == 0)
 		scal = 0 ;
 	else
-	{	assert (dmax > 0) ;
+	{	//assert (dmax > 0) ;
 		temp = gsm_norm ((int32_t) dmax << 16) ;
 		}
 
 	if (temp > 6) scal = 0 ;
 	else scal = 6 - temp ;
 
-	assert (scal >= 0) ;
+	//assert (scal >= 0) ;
 
 	/*  Initialization of a working array wt
 	 */
@@ -232,10 +232,10 @@ static void Calculation_of_the_LTP_parameters (
 
 	/*  Rescaling of L_max
 	 */
-	assert (scal <= 100 && scal >= -100) ;
+	//assert (scal <= 100 && scal >= -100) ;
 	L_max = L_max >> (6 - scal) ;	/* sub (6, scal) */
 
-	assert (Nc <= 120 && Nc >= 40) ;
+	//assert (Nc <= 120 && Nc >= 40) ;
 
 	/*   Compute the power of the reconstructed short term residual
 	 *   signal dp [..]
@@ -311,14 +311,14 @@ static void Cut_Calculation_of_the_LTP_parameters (
 	temp = 0 ;
 	if (dmax == 0) scal = 0 ;
 	else
-	{	assert (dmax > 0) ;
+	{	//assert (dmax > 0) ;
 		temp = gsm_norm ((int32_t) dmax << 16) ;
 		}
 
 	if (temp > 6) scal = 0 ;
 	else scal = 6 - temp ;
 
-	assert (scal >= 0) ;
+	//assert (scal >= 0) ;
 	ltp_cut = (int32_t) SASR_W (dmax, scal) * st->ltp_cut / 100 ;
 
 	/*  Initialization of a working array wt */
@@ -413,10 +413,10 @@ static void Cut_Calculation_of_the_LTP_parameters (
 
 	/*  Rescaling of L_max
 	 */
-	assert (scal <= 100 && scal >= -100) ;
+	//assert (scal <= 100 && scal >= -100) ;
 	L_max = L_max >> (6 - scal) ;	/* sub (6, scal) */
 
-	assert (Nc <= 120 && Nc >= 40) ;
+	//assert (Nc <= 120 && Nc >= 40) ;
 
 	/*   Compute the power of the reconstructed short term residual
 	 *   signal dp [..]
@@ -488,14 +488,14 @@ static void Calculation_of_the_LTP_parameters (
 	temp = 0 ;
 	if (dmax == 0) scal = 0 ;
 	else
-	{	assert (dmax > 0) ;
+	{	//assert (dmax > 0) ;
 		temp = gsm_norm ((int32_t) dmax << 16) ;
 		}
 
 	if (temp > 6) scal = 0 ;
 	else scal = 6 - temp ;
 
-	assert (scal >= 0) ;
+	//assert (scal >= 0) ;
 
 	/*  Initialization of a working array wt */
 
@@ -582,10 +582,10 @@ static void Calculation_of_the_LTP_parameters (
 
 	/*  Rescaling of L_max
 	 */
-	assert (scal <= 100 && scal >= -100) ;
+	//assert (scal <= 100 && scal >= -100) ;
 	L_max = L_max >> (6 - scal) ;	/* sub (6, scal) */
 
-	assert (Nc <= 120 && Nc >= 40) ;
+	//assert (Nc <= 120 && Nc >= 40) ;
 
 	/*   Compute the power of the reconstructed short term residual
 	 *   signal dp [..]
@@ -652,7 +652,7 @@ static void Cut_Fast_Calculation_of_the_LTP_parameters (
 		else if (-d [k] > wt_max) wt_max = -d [best_k = k] ;
 		}
 
-	assert (wt_max >= 0) ;
+	//assert (wt_max >= 0) ;
 	wt_float = (float) wt_max ;
 
 	for (k = -120 ; k < 0 ; ++k) dp_float [k] = (float) dp [k] ;
@@ -862,8 +862,8 @@ void Gsm_Long_Term_Predictor (	/* 4x for 160 samples */
 	int16_t	* Nc,	/* correlation lag		OUT	*/
 	int16_t	* bc	/* gain factor			OUT	*/)
 {
-	assert (d) ; assert (dp) ; assert (e) ;
-	assert (dpp) ; assert (Nc) ; assert (bc) ;
+	//assert (d) ; assert (dp) ; assert (e) ;
+	//assert (dpp) ; assert (Nc) ; assert (bc) ;
 
 #if defined (FAST) && defined (USE_FLOAT_MUL)
 	if (S->fast)
@@ -907,7 +907,7 @@ void Gsm_Long_Term_Synthesis_Filtering (
 	 */
 	Nr = Ncr < 40 || Ncr > 120 ? S->nrp : Ncr ;
 	S->nrp = Nr ;
-	assert (Nr >= 40 && Nr <= 120) ;
+	//assert (Nr >= 40 && Nr <= 120) ;
 
 	/*  Decoding of the LTP gain bcr
 	 */
@@ -916,7 +916,7 @@ void Gsm_Long_Term_Synthesis_Filtering (
 	/*  Computation of the reconstructed short term residual
 	 *  signal drp [0..39]
 	 */
-	assert (brp != MIN_WORD) ;
+	//assert (brp != MIN_WORD) ;
 
 	for (k = 0 ; k <= 39 ; k++)
 	{	drpp = GSM_MULT_R (brp, drp [k - Nr]) ;

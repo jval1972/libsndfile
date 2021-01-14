@@ -53,8 +53,8 @@ void Gsm_Preprocess (
 		SO = arith_shift_left (SASR_W (*s, 3), 2) ;
 		s++ ;
 
-		assert (SO >= -0x4000) ;	/* downscaled by     */
-		assert (SO <= 0x3FFC) ;		/* previous routine. */
+		//assert (SO >= -0x4000) ;	/* downscaled by     */
+		//assert (SO <= 0x3FFC) ;		/* previous routine. */
 
 
 		/*  4.2.2   Offset compensation
@@ -70,7 +70,7 @@ void Gsm_Preprocess (
 		s1 = SO - z1 ;			/* s1 = gsm_sub (*so, z1) ; */
 		z1 = SO ;
 
-		assert (s1 != MIN_WORD) ;
+		//assert (s1 != MIN_WORD) ;
 
 		/*   Compute the recursive part */
 		L_s2 = s1 ;
