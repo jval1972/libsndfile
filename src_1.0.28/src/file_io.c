@@ -457,20 +457,21 @@ psf_fgets (char *buffer, sf_count_t bufsize, SF_PRIVATE *psf)
 
 int
 psf_is_pipe (SF_PRIVATE *psf)
-{	struct stat statbuf ;
-
-	if (psf->virtual_io)
-		return SF_FALSE ;
-
-	if (fstat (psf->file.filedes, &statbuf) == -1)
-	{	psf_log_syserr (psf, errno) ;
-		/* Default to maximum safety. */
-		return SF_TRUE ;
-		} ;
-
-	if (S_ISFIFO (statbuf.st_mode) || S_ISSOCK (statbuf.st_mode))
-		return SF_TRUE ;
-
+{
+//	struct stat statbuf ;
+//
+//	if (psf->virtual_io)
+//		return SF_FALSE ;
+//
+//     	if (fstat (psf->file.filedes, &statbuf) == -1)
+//	{	psf_log_syserr (psf, errno) ;
+//		/* Default to maximum safety. */
+//		return SF_TRUE ;
+//		} ;
+//
+//	if (S_ISFIFO (statbuf.st_mode) || S_ISSOCK (statbuf.st_mode))
+//		return SF_TRUE ;
+//
 	return SF_FALSE ;
 } /* psf_is_pipe */
 
@@ -491,6 +492,7 @@ psf_get_filelen_fd (int fd)
 		return (sf_count_t) -1 ;
 
 	return statbuf.st_size ;
+//        return _getfilesize(fd);
 #endif
 } /* psf_get_filelen_fd */
 
