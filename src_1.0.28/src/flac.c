@@ -79,11 +79,11 @@ typedef struct
 } FLAC_TAG ;
 
 static sf_count_t	flac_seek (SF_PRIVATE *psf, int mode, sf_count_t offset) ;
-static int			flac_byterate (SF_PRIVATE *psf) ;
-static int			flac_close (SF_PRIVATE *psf) ;
+static int		flac_byterate (SF_PRIVATE *psf) ;
+static int		flac_close (SF_PRIVATE *psf) ;
 
-static int			flac_enc_init (SF_PRIVATE *psf) ;
-static int			flac_read_header (SF_PRIVATE *psf) ;
+static int		flac_enc_init (SF_PRIVATE *psf) ;
+static int		flac_read_header (SF_PRIVATE *psf) ;
 
 static sf_count_t	flac_read_flac2s (SF_PRIVATE *psf, short *ptr, sf_count_t len) ;
 static sf_count_t	flac_read_flac2i (SF_PRIVATE *psf, int *ptr, sf_count_t len) ;

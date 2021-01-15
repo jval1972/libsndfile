@@ -27,7 +27,7 @@
 #endif
 
 #include <string.h>
-#include <errno.h>
+//#include <errno.h>
 
 #include "common.h"
 

@@ -180,8 +180,8 @@ voc_read_header	(SF_PRIVATE *psf)
 	psf->dataoffset = dataoffset ;
 
 	psf_log_printf (psf, 	"dataoffset : %d\n"
-							"version    : 0x%X\n"
-							"checksum   : 0x%X\n", psf->dataoffset, version, checksum) ;
+				"version    : 0x%X\n"
+				"checksum   : 0x%X\n", psf->dataoffset, version, checksum) ;
 
 	if (version != 0x010A && version != 0x0114)
 		return SFE_VOC_BAD_VERSION ;

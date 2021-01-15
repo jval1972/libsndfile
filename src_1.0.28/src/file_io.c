@@ -47,8 +47,8 @@
 
 #include <string.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <sys/stat.h>
+//#include <errno.h>
+//#include <sys/stat.h>
 
 #include "sndfile.h"
 #include "common.h"
@@ -75,11 +75,11 @@ int fileclose(int stream);
 int filetruncate(int stream, int len);
 
 // macro helpers
-int read (int stream, void *ptr, int count){
+int read1 (int stream, void *ptr, int count){
         return fileread(ptr, 1, count, stream);
 }
 
-int write (int stream, void *ptr, int count){
+int write1 (int stream, void *ptr, int count){
         return filewrite(ptr, 1, count, stream);
 }
 
@@ -107,7 +107,7 @@ psf_fopen (SF_PRIVATE *psf)
 		} ;
 
 	if (psf->file.filedes == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	return psf->error ;
 } /* psf_fopen */
@@ -125,7 +125,7 @@ psf_fclose (SF_PRIVATE *psf)
 		} ;
 
 	if ((retval = psf_close_fd (psf->file.filedes)) == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	psf->file.filedes = -1 ;
 
@@ -178,7 +178,7 @@ psf_open_rsrc (SF_PRIVATE *psf)
 
 	/* No resource file found. */
 	if (psf->rsrc.filedes == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	psf->rsrc.filedes = -1 ;
 
@@ -195,7 +195,7 @@ psf_get_filelen (SF_PRIVATE *psf)
 	filelen = psf_get_filelen_fd (psf->file.filedes) ;
 
 	if (filelen == -1)
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return (sf_count_t) -1 ;
 		} ;
 
@@ -292,7 +292,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 				{	new_position = fileseek (psf->file.filedes, offset, whence) ;
 
 					if (new_position < 0)
-						psf_log_syserr (psf, errno) ;
+						psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 					return new_position - psf->fileoffset ;
 					} ;
@@ -323,7 +323,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 		new_position = offset ;
 
 	if (new_position < 0)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	new_position -= psf->fileoffset ;
 
@@ -348,13 +348,13 @@ psf_fread (void *ptr, sf_count_t bytes, sf_count_t items, SF_PRIVATE *psf)
 	{	/* Break the read down to a sensible size. */
 		count = (items > SENSIBLE_SIZE) ? SENSIBLE_SIZE : (ssize_t) items ;
 
-		count = read (psf->file.filedes, ((char*) ptr) + total, (size_t) count) ;
+		count = read1 (psf->file.filedes, ((char*) ptr) + total, (size_t) count) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -392,13 +392,13 @@ psf_fwrite (const void *ptr, sf_count_t bytes, sf_count_t items, SF_PRIVATE *psf
 	{	/* Break the writes down to a sensible size. */
 		count = (items > SENSIBLE_SIZE) ? SENSIBLE_SIZE : items ;
 
-		count = write (psf->file.filedes, ((const char*) ptr) + total, count) ;
+		count = write1 (psf->file.filedes, ((const char*) ptr) + total, count) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -428,7 +428,7 @@ psf_ftell (SF_PRIVATE *psf)
 	pos = fileseek (psf->file.filedes, 0, SEEK_CUR) ;
 
 	if (pos == ((sf_count_t) -1))
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return -1 ;
 		} ;
 
@@ -442,7 +442,7 @@ psf_close_fd (int fd)
 	if (fd < 0)
 		return 0 ;
 
-	while ((retval = fileclose (fd)) == -1 && errno == EINTR)
+	while ((retval = fileclose (fd)) == -1 && SF_ERR_SYSTEM == EINTR)
 		/* Do nothing. */ ;
 
 	return retval ;
@@ -454,13 +454,13 @@ psf_fgets (char *buffer, sf_count_t bufsize, SF_PRIVATE *psf)
 	sf_count_t		count ;
 
 	while (k < bufsize - 1)
-	{	count = read (psf->file.filedes, &(buffer [k]), 1) ;
+	{	count = read1 (psf->file.filedes, &(buffer [k]), 1) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -482,7 +482,7 @@ psf_is_pipe (SF_PRIVATE *psf)
 //		return SF_FALSE ;
 //
 //     	if (fstat (psf->file.filedes, &statbuf) == -1)
-//	{	psf_log_syserr (psf, errno) ;
+//	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 //		/* Default to maximum safety. */
 //		return SF_TRUE ;
 //		} ;
@@ -529,7 +529,7 @@ psf_ftruncate (SF_PRIVATE *psf, sf_count_t len)
 	retval = filetruncate (psf->file.filedes, len) ;
 
 	if (retval == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	return retval ;
 } /* psf_ftruncate */
@@ -607,7 +607,8 @@ psf_log_syserr (SF_PRIVATE *psf, int error)
 	/* Only log an error if no error has been set yet. */
 	if (psf->error == 0)
 	{	psf->error = SFE_SYSTEM ;
-		snprintf (psf->syserr, sizeof (psf->syserr), "System error : %d.", error) ;
+//		snprintf (psf->syserr, sizeof (psf->syserr), "System error : %d.", error) ;
+		snprintf (psf->syserr, sizeof (psf->syserr), "System error.") ;
 		} ;
 
 	return ;
@@ -722,7 +723,7 @@ psf_get_filelen (SF_PRIVATE *psf)
 	filelen = psf_get_filelen_handle (psf->file.handle) ;
 
 	if (filelen == -1)
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return (sf_count_t) -1 ;
 		} ;
 
@@ -1242,7 +1243,7 @@ psf_fopen (SF_PRIVATE *psf, const char *pathname, int open_mode)
 		psf->file.filedes = open (pathname, oflag, mode) ;
 
 	if (psf->file.filedes == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	return psf->file.filedes ;
 } /* psf_fopen */
@@ -1264,7 +1265,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 				{	new_position = _lseeki64 (psf->file.filedes, offset, whence) ;
 
 					if (new_position < 0)
-						psf_log_syserr (psf, errno) ;
+						psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 					return new_position - psf->fileoffset ;
 					} ;
@@ -1294,7 +1295,7 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 		new_position = _lseeki64 (psf->file.filedes, offset, whence) ;
 
 	if (new_position < 0)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	new_position -= psf->fileoffset ;
 
@@ -1319,13 +1320,13 @@ psf_fread (void *ptr, sf_count_t bytes, sf_count_t items, SF_PRIVATE *psf)
 	{	/* Break the writes down to a sensible size. */
 		count = (items > SENSIBLE_SIZE) ? SENSIBLE_SIZE : (ssize_t) items ;
 
-		count = read (psf->file.filedes, ((char*) ptr) + total, (size_t) count) ;
+		count = read1 (psf->file.filedes, ((char*) ptr) + total, (size_t) count) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -1357,13 +1358,13 @@ psf_fwrite (const void *ptr, sf_count_t bytes, sf_count_t items, SF_PRIVATE *psf
 	{	/* Break the writes down to a sensible size. */
 		count = (items > SENSIBLE_SIZE) ? SENSIBLE_SIZE : items ;
 
-		count = write (psf->file.filedes, ((const char*) ptr) + total, count) ;
+		count = write1 (psf->file.filedes, ((const char*) ptr) + total, count) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -1387,7 +1388,7 @@ psf_ftell (SF_PRIVATE *psf)
 	pos = _telli64 (psf->file.filedes) ;
 
 	if (pos == ((sf_count_t) -1))
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return -1 ;
 		} ;
 
@@ -1399,11 +1400,11 @@ psf_ftell (SF_PRIVATE *psf)
 psf_fclose (SF_PRIVATE *psf)
 {	int retval ;
 
-	while ((retval = close (psf->file.filedes)) == -1 && errno == EINTR)
+	while ((retval = close (psf->file.filedes)) == -1 && SF_ERR_SYSTEM == EINTR)
 		/* Do nothing. */ ;
 
 	if (retval == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	psf->file.filedes = -1 ;
 
@@ -1416,13 +1417,13 @@ psf_fgets (char *buffer, sf_count_t bufsize, SF_PRIVATE *psf)
 	sf_count_t	count ;
 
 	while (k < bufsize - 1)
-	{	count = read (psf->file.filedes, &(buffer [k]), 1) ;
+	{	count = read1 (psf->file.filedes, &(buffer [k]), 1) ;
 
 		if (count == -1)
-		{	if (errno == EINTR)
+		{	if (SF_ERR_SYSTEM == EINTR)
 				continue ;
 
-			psf_log_syserr (psf, errno) ;
+			psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 			break ;
 			} ;
 
@@ -1437,22 +1438,23 @@ psf_fgets (char *buffer, sf_count_t bufsize, SF_PRIVATE *psf)
 
 /* Win32 */ int
 psf_is_pipe (SF_PRIVATE *psf)
-{	struct stat statbuf ;
-
-	if (psf->virtual_io)
-		return SF_FALSE ;
-
-	/* Not sure if this works. */
-	if (fstat (psf->file.filedes, &statbuf) == -1)
-	{	psf_log_syserr (psf, errno) ;
-		/* Default to maximum safety. */
-		return SF_TRUE ;
-		} ;
-
-	/* These macros are defined in Win32/unistd.h. */
-	if (S_ISFIFO (statbuf.st_mode) || S_ISSOCK (statbuf.st_mode))
-		return SF_TRUE ;
-
+{
+//	struct stat statbuf ;
+//
+//	if (psf->virtual_io)
+//		return SF_FALSE ;
+//
+//	/* Not sure if this works. */
+//	if (fstat (psf->file.filedes, &statbuf) == -1)
+//	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
+//		/* Default to maximum safety. */
+//		return SF_TRUE ;
+//		} ;
+//
+//	/* These macros are defined in Win32/unistd.h. */
+//	if (S_ISFIFO (statbuf.st_mode) || S_ISSOCK (statbuf.st_mode))
+//		return SF_TRUE ;
+//
 	return SF_FALSE ;
 } /* psf_checkpipe */
 
@@ -1468,7 +1470,7 @@ psf_get_filelen (SF_PRIVATE *psf)
 	struct _stati64 statbuf ;
 
 	if (_fstati64 (psf->file.filedes, &statbuf))
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return (sf_count_t) -1 ;
 		} ;
 
@@ -1480,7 +1482,7 @@ psf_get_filelen (SF_PRIVATE *psf)
 		return psf->vio.get_filelen (psf->vio_user_data) ;
 
 	if ((current = _telli64 (psf->file.filedes)) < 0)
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return (sf_count_t) -1 ;
 		} ;
 
@@ -1500,7 +1502,7 @@ psf_get_filelen (SF_PRIVATE *psf)
 	_lseeki64 (psf->file.filedes, 0, SEEK_END) ;
 
 	if ((filelen = _lseeki64 (psf->file.filedes, 0, SEEK_END)) < 0)
-	{	psf_log_syserr (psf, errno) ;
+	{	psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 		return (sf_count_t) -1 ;
 		} ;
 
@@ -1554,7 +1556,7 @@ psf_ftruncate (SF_PRIVATE *psf, sf_count_t len)
 	retval = chsize (psf->file.filedes, len) ;
 
 	if (retval == -1)
-		psf_log_syserr (psf, errno) ;
+		psf_log_syserr (psf, SF_ERR_SYSTEM) ;
 
 	return retval ;
 } /* psf_ftruncate */

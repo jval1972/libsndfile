@@ -19,8 +19,8 @@ int fileclose(int stream);
 int filetruncate(int stream, int len);
 
 // macro helpers
-int read (int stream, void *ptr, int count);
+int read1 (int stream, void *ptr, int count);
 
-int write (int stream, void *ptr, int count);
+int write1 (int stream, void *ptr, int count);
 
 #endif
