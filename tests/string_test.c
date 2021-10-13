@@ -37,6 +37,8 @@
 #define	BUFFER_LEN			(1 << 10)
 #define LOG_BUFFER_SIZE		1024
 
+static const char STR_TEST_PREFIX[] = "str" ;
+
 static void	string_start_test (const char *filename, int typemajor) ;
 static void	string_start_end_test (const char *filename, int typemajor) ;
 static void	string_multi_set_test (const char *filename, int typemajor) ;
@@ -110,6 +112,14 @@ main (int argc, char *argv [])
 			string_start_test ("strings.flac", SF_FORMAT_FLAC) ;
 		else
 			puts ("    No FLAC tests because FLAC support was not compiled in.") ;
+		test_count++ ;
+		} ;
+
+	if (do_all || ! strcmp (argv [1], "mpeg"))
+	{	if (HAVE_MPEG)
+			string_start_test ("mpeg.mp3", SF_FORMAT_MPEG | SF_FORMAT_MPEG_LAYER_III) ;
+		else
+			puts ("    No MP3 tests because MPEG support was not compiled in.") ;
 		test_count++ ;
 		} ;
 
@@ -195,7 +205,9 @@ static const char
 	long_title	[]	= "This is a very long and very boring title for this file",
 	long_artist	[]	= "The artist who kept on changing its name",
 	genre		[]	= "The genre",
-	trackno		[]	= "Track three" ;
+	trackno		[]	= "Track three",
+	id3v1_genre	[]	= "Rock",
+	year		[]	= "2001" ;
 
 
 static	short	data_out [BUFFER_LEN] ;
@@ -207,6 +219,7 @@ string_start_end_test (const char *filename, int typemajor)
 	SF_INFO		sfinfo ;
 	int			errors = 0 ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name ("string_start_end_test", filename) ;
 
 	memset (&sfinfo, 0, sizeof (sfinfo)) ;
@@ -356,6 +369,7 @@ string_start_test (const char *filename, int formattype)
 	int			errors = 0 ;
 	int			typemajor = SF_FORMAT_TYPEMASK & formattype ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name ("string_start_test", filename) ;
 
 	memset (&sfinfo, 0, sizeof (sfinfo)) ;
@@ -370,6 +384,7 @@ string_start_test (const char *filename, int formattype)
 			break ;
 
 		case SF_FORMAT_OGG | SF_FORMAT_VORBIS :
+		case SF_FORMAT_MPEG | SF_FORMAT_MPEG_LAYER_III :
 			break ;
 
 		default :
@@ -386,9 +401,15 @@ string_start_test (const char *filename, int formattype)
 	sf_set_string (file, SF_STR_ARTIST, artist) ;
 	sf_set_string (file, SF_STR_COPYRIGHT, copyright) ;
 	sf_set_string (file, SF_STR_COMMENT, comment) ;
-	sf_set_string (file, SF_STR_DATE, date) ;
 	sf_set_string (file, SF_STR_ALBUM, album) ;
 	sf_set_string (file, SF_STR_LICENSE, license) ;
+	if (typemajor == SF_FORMAT_MPEG)
+	{	sf_set_string (file, SF_STR_GENRE, id3v1_genre) ;
+		sf_set_string (file, SF_STR_DATE, year) ;
+		}
+	else
+	{	sf_set_string (file, SF_STR_DATE, date) ;
+		} ;
 
 	/* Write data to file. */
 	test_write_short_or_die (file, 0, data_out, BUFFER_LEN, __LINE__) ;
@@ -411,24 +432,35 @@ string_start_test (const char *filename, int formattype)
 		printf ("    Bad filename  : %s\n", cptr) ;
 		} ;
 
-	cptr = sf_get_string (file, SF_STR_COPYRIGHT) ;
-	if (cptr == NULL || strcmp (copyright, cptr) != 0)
-	{	if (errors++ == 0)
-			puts ("\n") ;
-		printf ("    Bad copyright : %s\n", cptr) ;
+	if (typemajor != SF_FORMAT_MPEG)
+	{	cptr = sf_get_string (file, SF_STR_COPYRIGHT) ;
+		if (cptr == NULL || strcmp (copyright, cptr) != 0)
+		{	if (errors++ == 0)
+				puts ("\n") ;
+			printf ("    Bad copyright : %s\n", cptr) ;
+			} ;
+
+		cptr = sf_get_string (file, SF_STR_SOFTWARE) ;
+		if (cptr == NULL || strstr (cptr, software) != cptr)
+		{	if (errors++ == 0)
+				puts ("\n") ;
+			printf ("    Bad software  : %s\n", cptr) ;
+			} ;
+
+		if (cptr && str_count (cptr, "libsndfile") != 1)
+		{	if (errors++ == 0)
+				puts ("\n") ;
+			printf ("    Bad software  : %s\n", cptr) ;
+			} ;
 		} ;
 
-	cptr = sf_get_string (file, SF_STR_SOFTWARE) ;
-	if (cptr == NULL || strstr (cptr, software) != cptr)
-	{	if (errors++ == 0)
-			puts ("\n") ;
-		printf ("    Bad software  : %s\n", cptr) ;
-		} ;
-
-	if (cptr && str_count (cptr, "libsndfile") != 1)
-	{	if (errors++ == 0)
-			puts ("\n") ;
-		printf ("    Bad software  : %s\n", cptr) ;
+	if (typemajor == SF_FORMAT_MPEG)
+	{	cptr = sf_get_string (file, SF_STR_GENRE) ;
+		if (cptr == NULL || strcmp (id3v1_genre, cptr) != 0)
+		{	if (errors++ == 0)
+				puts ("\n") ;
+			printf ("    Bad genre     : %s\n", cptr) ;
+			} ;
 		} ;
 
 	cptr = sf_get_string (file, SF_STR_ARTIST) ;
@@ -445,13 +477,29 @@ string_start_test (const char *filename, int formattype)
 		printf ("    Bad comment   : %s\n", cptr) ;
 		} ;
 
-	if (typemajor != SF_FORMAT_AIFF)
-	{	cptr = sf_get_string (file, SF_STR_DATE) ;
-		if (cptr == NULL || strcmp (date, cptr) != 0)
-		{	if (errors++ == 0)
-				puts ("\n") ;
-			printf ("    Bad date      : %s\n", cptr) ;
-			} ;
+	switch (typemajor)
+	{	case SF_FORMAT_AIFF :
+			/* not supported */
+			break ;
+
+		case SF_FORMAT_MPEG :
+			/* id3 only supports years */
+			cptr = sf_get_string (file, SF_STR_DATE) ;
+			if (cptr == NULL || strcmp (year, cptr) != 0)
+			{	if (errors++ == 0)
+					puts ("\n") ;
+				printf ("    Bad date      : %s\n", cptr) ;
+				} ;
+			break ;
+
+		default :
+			cptr = sf_get_string (file, SF_STR_DATE) ;
+			if (cptr == NULL || strcmp (date, cptr) != 0)
+			{	if (errors++ == 0)
+					puts ("\n") ;
+				printf ("    Bad date      : %s\n", cptr) ;
+				} ;
+			break ;
 		} ;
 
 	if (typemajor != SF_FORMAT_WAV && typemajor != SF_FORMAT_AIFF)
@@ -463,13 +511,21 @@ string_start_test (const char *filename, int formattype)
 			} ;
 		} ;
 
-	if (typemajor != SF_FORMAT_WAV && typemajor != SF_FORMAT_AIFF && typemajor != SF_FORMAT_RF64)
-	{	cptr = sf_get_string (file, SF_STR_LICENSE) ;
-		if (cptr == NULL || strcmp (license, cptr) != 0)
-		{	if (errors++ == 0)
-				puts ("\n") ;
-			printf ("    Bad license   : %s\n", cptr) ;
-			} ;
+	switch (typemajor)
+	{	case SF_FORMAT_WAV :
+		case SF_FORMAT_AIFF :
+		case SF_FORMAT_RF64 :
+		case SF_FORMAT_MPEG :
+			/* not supported */
+			break ;
+
+		default:
+			cptr = sf_get_string (file, SF_STR_LICENSE) ;
+			if (cptr == NULL || strcmp (license, cptr) != 0)
+			{	if (errors++ == 0)
+					puts ("\n") ;
+				printf ("    Bad license   : %s\n", cptr) ;
+				} ;
 		} ;
 
 	if (errors > 0)
@@ -497,6 +553,7 @@ string_multi_set_test (const char *filename, int typemajor)
 	SF_INFO		sfinfo ;
 	int			count ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 
 	memset (&sfinfo, 0, sizeof (sfinfo)) ;
@@ -566,6 +623,7 @@ string_rdwr_test (const char *filename, int typemajor)
 	sf_count_t frames ;
 	const char * str ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 	create_short_sndfile (filename, typemajor | SF_FORMAT_PCM_16, 2) ;
 
@@ -618,6 +676,7 @@ string_short_rdwr_test (const char *filename, int typemajor)
 	sf_count_t frames = BUFFER_LEN ;
 	const char * str ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 
 	memset (&sfinfo, 0, sizeof (sfinfo)) ;
@@ -687,6 +746,7 @@ static void
 software_string_test (const char *filename)
 {	size_t k ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 
 	for (k = 0 ; k < 50 ; k++)
@@ -727,6 +787,7 @@ string_rdwr_grow_test (const char *filename, int typemajor)
 	sf_count_t frames ;
 	const char * str ;
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 
 	/* Create a file that contains some strings. Then open the file in RDWR mode and
@@ -785,6 +846,7 @@ string_header_update (const char *filename, int typemajor)
 	const char * str ;
 	const int GROW_BUFFER_AMOUNT = 4 ; /* this should be less than half the size of the string header */
 
+	get_unique_test_name (&filename, STR_TEST_PREFIX) ;
 	print_test_name (__func__, filename) ;
 
 	/* Create a short file. */

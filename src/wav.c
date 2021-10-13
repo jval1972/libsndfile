@@ -77,13 +77,13 @@
 
 
 enum
-{	HAVE_RIFF	= 0x01,
-	HAVE_WAVE	= 0x02,
-	HAVE_fmt	= 0x04,
-	HAVE_fact	= 0x08,
-	HAVE_PEAK	= 0x10,
-	HAVE_data	= 0x20,
-	HAVE_other	= 0x80000000
+{	HAVE_RIFF	= 1 << 0,
+	HAVE_WAVE	= 1 << 1,
+	HAVE_fmt	= 1 << 2,
+	HAVE_fact	= 1 << 3,
+	HAVE_PEAK	= 1 << 4,
+	HAVE_data	= 1 << 5,
+	HAVE_other	= 1 << 6
 } ;
 
 
@@ -1325,8 +1325,9 @@ wav_read_smpl_chunk (SF_PRIVATE *psf, uint32_t chunklen)
 	psf_log_printf (psf, "  SMPTE Format : %u\n", dword) ;
 
 	bytesread += psf_binheader_readf (psf, "4", &dword) ;
-	snprintf (buffer, sizeof (buffer), "%02d:%02d:%02d %02d",
-				(dword >> 24) & 0x7F, (dword >> 16) & 0x7F, (dword >> 8) & 0x7F, dword & 0x7F) ;
+	snprintf (buffer, sizeof (buffer), "%02"PRIu32 ":%02"PRIu32 ":%02"PRIu32
+				" %02"PRIu32 "", (dword >> 24) & 0x7F, (dword >> 16) & 0x7F,
+				(dword >> 8) & 0x7F, dword & 0x7F) ;
 	psf_log_printf (psf, "  SMPTE Offset : %s\n", buffer) ;
 
 	bytesread += psf_binheader_readf (psf, "4", &loop_count) ;

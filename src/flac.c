@@ -127,39 +127,39 @@ static FLAC__StreamEncoderWriteStatus sf_flac_enc_write_callback (const FLAC__St
 
 static void
 s2flac8_array (const short *src, int32_t *dest, int count)
-{	while (--count >= 0)
-		dest [count] = src [count] >> 8 ;
+{	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] >> 8 ;
 } /* s2flac8_array */
 
 static void
 s2flac16_array (const short *src, int32_t *dest, int count)
-{	while (--count >= 0)
-		dest [count] = src [count] ;
+{	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] ;
 } /* s2flac16_array */
 
 static void
 s2flac24_array (const short *src, int32_t *dest, int count)
-{	while (--count >= 0)
-		dest [count] = src [count] << 8 ;
+{	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] << 8 ;
 } /* s2flac24_array */
 
 static void
 i2flac8_array (const int *src, int32_t *dest, int count)
-{	while (--count >= 0)
-		dest [count] = src [count] >> 24 ;
+{	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] >> 24 ;
 } /* i2flac8_array */
 
 static void
 i2flac16_array (const int *src, int32_t *dest, int count)
 {
-	while (--count >= 0)
-		dest [count] = src [count] >> 16 ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] >> 16 ;
 } /* i2flac16_array */
 
 static void
 i2flac24_array (const int *src, int32_t *dest, int count)
-{	while (--count >= 0)
-		dest [count] = src [count] >> 8 ;
+{	for (int i = 0 ; i < count ; i++)
+		dest [i] = src [i] >> 8 ;
 } /* i2flac24_array */
 
 static sf_count_t
@@ -948,7 +948,11 @@ flac_read_loop (SF_PRIVATE *psf, unsigned len)
 	/* Decode some more. */
 	while (pflac->pos < pflac->len)
 	{	if (FLAC__stream_decoder_process_single (pflac->fsd) == 0)
+		{	psf_log_printf (psf, "FLAC__stream_decoder_process_single returned false\n") ;
+			/* Current frame is busted, so NULL the pointer. */
+			pflac->frame = NULL ;
 			break ;
+			} ;
 		state = FLAC__stream_decoder_get_state (pflac->fsd) ;
 		if (state >= FLAC__STREAM_DECODER_END_OF_STREAM)
 		{	psf_log_printf (psf, "FLAC__stream_decoder_get_state returned %s\n", FLAC__StreamDecoderStateString [state]) ;
@@ -1176,17 +1180,17 @@ f2flac8_clip_array (const float *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x10) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7F))
-		{	dest [count] = 0x7F ;
+		{	dest [i] = 0x7F ;
 			continue ;
 			} ;
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x10))
-		{	dest [count] = -0x80 ;
+		{	dest [i] = -0x80 ;
 			continue ;
 			} ;
-		dest [count] = psf_lrintf (scaled_value) ;
+		dest [i] = psf_lrintf (scaled_value) ;
 		} ;
 
 	return ;
@@ -1198,17 +1202,17 @@ f2flac16_clip_array (const float *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x1000) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7FFF))
-		{	dest [count] = 0x7FFF ;
+		{	dest [i] = 0x7FFF ;
 			continue ;
 			} ;
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x1000))
-		{	dest [count] = -0x8000 ;
+		{	dest [i] = -0x8000 ;
 			continue ;
 			} ;
-		dest [count] = psf_lrintf (scaled_value) ;
+		dest [i] = psf_lrintf (scaled_value) ;
 		} ;
 } /* f2flac16_clip_array */
 
@@ -1218,18 +1222,18 @@ f2flac24_clip_array (const float *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x100000) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7FFFFF))
-		{	dest [count] = 0x7FFFFF ;
+		{	dest [i] = 0x7FFFFF ;
 			continue ;
 			} ;
 
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x100000))
-		{	dest [count] = -0x800000 ;
+		{	dest [i] = -0x800000 ;
 			continue ;
 			}
-		dest [count] = psf_lrintf (scaled_value) ;
+		dest [i] = psf_lrintf (scaled_value) ;
 		} ;
 
 	return ;
@@ -1239,24 +1243,24 @@ static void
 f2flac8_array (const float *src, int32_t *dest, int count, int normalize)
 {	float normfact = normalize ? (1.0 * 0x7F) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrintf (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrintf (src [i] * normfact) ;
 } /* f2flac8_array */
 
 static void
 f2flac16_array (const float *src, int32_t *dest, int count, int normalize)
 {	float normfact = normalize ? (1.0 * 0x7FFF) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrintf (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrintf (src [i] * normfact) ;
 } /* f2flac16_array */
 
 static void
 f2flac24_array (const float *src, int32_t *dest, int count, int normalize)
 {	float normfact = normalize ? (1.0 * 0x7FFFFF) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrintf (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrintf (src [i] * normfact) ;
 } /* f2flac24_array */
 
 static sf_count_t
@@ -1307,17 +1311,17 @@ d2flac8_clip_array (const double *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x10) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7F))
-		{	dest [count] = 0x7F ;
+		{	dest [i] = 0x7F ;
 			continue ;
 			} ;
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x10))
-		{	dest [count] = -0x80 ;
+		{	dest [i] = -0x80 ;
 			continue ;
 			} ;
-		dest [count] = psf_lrint (scaled_value) ;
+		dest [i] = psf_lrint (scaled_value) ;
 		} ;
 
 	return ;
@@ -1329,17 +1333,17 @@ d2flac16_clip_array (const double *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x1000) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7FFF))
-		{	dest [count] = 0x7FFF ;
+		{	dest [i] = 0x7FFF ;
 			continue ;
 			} ;
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x1000))
-		{	dest [count] = -0x8000 ;
+		{	dest [i] = -0x8000 ;
 			continue ;
 			} ;
-		dest [count] = psf_lrint (scaled_value) ;
+		dest [i] = psf_lrint (scaled_value) ;
 		} ;
 
 	return ;
@@ -1351,17 +1355,17 @@ d2flac24_clip_array (const double *src, int32_t *dest, int count, int normalize)
 
 	normfact = normalize ? (8.0 * 0x100000) : 1.0 ;
 
-	while (--count >= 0)
-	{	scaled_value = src [count] * normfact ;
+	for (int i = 0 ; i < count ; i++)
+	{	scaled_value = src [i] * normfact ;
 		if (CPU_CLIPS_POSITIVE == 0 && scaled_value >= (1.0 * 0x7FFFFF))
-		{	dest [count] = 0x7FFFFF ;
+		{	dest [i] = 0x7FFFFF ;
 			continue ;
 			} ;
 		if (CPU_CLIPS_NEGATIVE == 0 && scaled_value <= (-8.0 * 0x100000))
-		{	dest [count] = -0x800000 ;
+		{	dest [i] = -0x800000 ;
 			continue ;
 			} ;
-		dest [count] = psf_lrint (scaled_value) ;
+		dest [i] = psf_lrint (scaled_value) ;
 		} ;
 
 	return ;
@@ -1371,24 +1375,24 @@ static void
 d2flac8_array (const double *src, int32_t *dest, int count, int normalize)
 {	double normfact = normalize ? (1.0 * 0x7F) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrint (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrint (src [i] * normfact) ;
 } /* d2flac8_array */
 
 static void
 d2flac16_array (const double *src, int32_t *dest, int count, int normalize)
 {	double normfact = normalize ? (1.0 * 0x7FFF) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrint (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrint (src [i] * normfact) ;
 } /* d2flac16_array */
 
 static void
 d2flac24_array (const double *src, int32_t *dest, int count, int normalize)
 {	double normfact = normalize ? (1.0 * 0x7FFFFF) : 1.0 ;
 
-	while (--count >= 0)
-		dest [count] = psf_lrint (src [count] * normfact) ;
+	for (int i = 0 ; i < count ; i++)
+		dest [i] = psf_lrint (src [i] * normfact) ;
 } /* d2flac24_array */
 
 static sf_count_t

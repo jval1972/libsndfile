@@ -29,10 +29,6 @@
 #include "sf_unistd.h"
 #endif
 
-#if OS_IS_WIN32
-#include <windows.h>
-#endif
-
 #include <sndfile.h>
 
 #include "utils.h"
@@ -213,19 +209,10 @@ error_close_test (void)
 
 	if (sf_close (sndfile) == 0)
 	{
-#if OS_IS_WIN32
-		OSVERSIONINFOEX osvi ;
-
-		memset (&osvi, 0, sizeof (OSVERSIONINFOEX)) ;
-		osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFOEX) ;
-
-		if (GetVersionEx ((OSVERSIONINFO *) &osvi))
-		{	printf ("\n\nLine %d : sf_close should not have returned zero.\n", __LINE__) ;
-			printf ("\nHowever, this is a known bug in version %d.%d of windows so we'll ignore it.\n\n",
-					(int) osvi.dwMajorVersion, (int) osvi.dwMinorVersion) ;
-			} ;
-#else
 		printf ("\n\nLine %d : sf_close should not have returned zero.\n", __LINE__) ;
+#if OS_IS_WIN32
+		printf ("\nHowever, this is a known bug on windows platform so we'll ignore it.\n\n") ;
+#else
 		exit (1) ;
 #endif
 		} ;
@@ -255,7 +242,7 @@ unrecognised_test (void)
 	sndfile = sf_open (filename, SFM_READ, &sfinfo) ;
 
 	exit_if_true (sndfile != NULL,
-		"\n\nLine %d : SNDFILE* pointer (%p) should ne NULL.\n", __LINE__, sndfile
+		"\n\nLine %d : SNDFILE* pointer (%p) should be NULL.\n", __LINE__, (void *) sndfile
 		) ;
 
 	k = sf_error (sndfile) ;

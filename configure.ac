@@ -1,9 +1,9 @@
-dnl Copyright (C) 1999-2020  Erik de Castro Lopo <erikd@mega-nerd.com>.
+dnl Copyright (C) 1999-2021  Erik de Castro Lopo <erikd@mega-nerd.com>.
 
 dnl Require autoconf version >= 2.69
 AC_PREREQ([2.69])
 
-AC_INIT([libsndfile],[1.0.30],[sndfile@mega-nerd.com],
+AC_INIT([libsndfile],[1.1.0beta1],[sndfile@mega-nerd.com],
 		[libsndfile],[http://libsndfile.github.io/libsndfile/])
 
 dnl Check whether we want to set defaults for CFLAGS, CXXFLAGS, CPPFLAGS and LDFLAGS
@@ -30,7 +30,7 @@ AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([src/config.h])
 
-AM_INIT_AUTOMAKE([1.14 foreign dist-bzip2 no-dist-gzip serial-tests subdir-objects])
+AM_INIT_AUTOMAKE([1.14 foreign dist-xz no-dist-gzip serial-tests subdir-objects])
 AM_SILENT_RULES([yes])
 
 dnl ====================================================================================
@@ -85,22 +85,28 @@ dnl      age.
 dnl   6. If any interfaces have been removed since the last public release, then set age
 dnl      to 0.
 
-CLEAN_VERSION=`echo $PACKAGE_VERSION | $SED "s/p.*//"`
-VERSION_MAJOR=`echo $PACKAGE_VERSION | $SED "s/\..*//"`
-VERSION_MINOR=`echo $CLEAN_VERSION | $SED "s/.*\.//"`
-GEN_TOOL="autoconf"
+dnl   This is libtool version of library, we add it to `--version-info` property.
 
-SHARED_VERSION_INFO="$VERSION_MAJOR:$VERSION_MINOR:0"
+m4_define([lt_current], [1])
+m4_define([lt_revision], [32])
+m4_define([lt_age], [0])
+
+dnl This is ABI version for linker scripts, CMake uses the same format for
+dnl VERSION property of shared library.
+dnl The formula is: c:r:a -> c-a:a:r
+
+m4_define([abi_version_major], [m4_eval(lt_current - lt_age)])
+m4_define([abi_version_minor], [lt_age])
+m4_define([abi_version_patch], [lt_revision])
 
 dnl ------------------------------------------------------------------------------------
-
-AC_HEADER_STDC
 
 AC_CHECK_HEADERS([endian.h])
 AC_CHECK_HEADERS([byteswap.h])
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([sys/time.h])
 AC_CHECK_HEADERS([immintrin.h])
+AC_CHECK_HEADERS([stdbool.h])
 
 AC_HEADER_SYS_WAIT
 
@@ -135,9 +141,6 @@ AC_DEFINE_UNQUOTED([ENABLE_EXPERIMENTAL_CODE], [${EXPERIMENTAL_CODE}], [Set to 1
 AC_ARG_ENABLE([werror],
 	[AS_HELP_STRING([--enable-werror], [enable -Werror in all Makefiles])])
 
-AC_ARG_ENABLE([stack-smash-protection],
-	[AS_HELP_STRING([--enable-stack-smash-protection], [Enable GNU GCC stack smash protection])])
-
 AC_ARG_ENABLE([cpu-clip],
 	[AS_HELP_STRING([--disable-cpu-clip], [disable tricky cpu specific clipper])])
 
@@ -152,6 +155,9 @@ AC_ARG_ENABLE([alsa],
 
 AC_ARG_ENABLE([external-libs],
 	[AS_HELP_STRING([--disable-external-libs], [disable use of FLAC, Ogg and Vorbis [[default=no]]])])
+
+AC_ARG_ENABLE([mpeg],
+	[AS_HELP_STRING([--disable-mpeg], [disable use of LAME/MPG123 for MPEG (MP3) [[defaults=no]]])])
 
 AC_ARG_ENABLE(octave,
 	[AS_HELP_STRING([--enable-octave], [enable building of GNU Octave module])])
@@ -380,8 +386,8 @@ AS_IF([test -n "$PKG_CONFIG"], [
 					fi
 				], [
 					AS_ECHO([""])
-					AC_MSG_WARN([[*** One or more of the external libraries (ie libflac, libogg and]])
-					AC_MSG_WARN([[*** libvorbis) is either missing (possibly only the development]])
+					AC_MSG_WARN([[*** One or more of the external libraries (ie libflac, libogg,]])
+					AC_MSG_WARN([[*** libvorbis and libopus) is either missing (possibly only the development]])
 					AC_MSG_WARN([[*** headers) or is of an unsupported version.]])
 					AC_MSG_WARN([[***]])
 					AC_MSG_WARN([[*** Unfortunately, for ease of maintenance, the external libs]])
@@ -392,6 +398,53 @@ AS_IF([test -n "$PKG_CONFIG"], [
 	])
 
 AC_DEFINE_UNQUOTED([HAVE_EXTERNAL_XIPH_LIBS], [$HAVE_EXTERNAL_XIPH_LIBS], [Will be set to 1 if flac, ogg, vorbis, and opus are available.])
+
+dnl ====================================================================================
+dnl  Check for MPEG libraris liblame
+
+ac_cv_lame="no"
+ac_cv_mpg123="no"
+HAVE_MPEG=0
+EXTERNAL_MPEG_REQUIRE=""
+EXTERNAL_MPEG_LIBS=""
+
+AS_IF([test -n "$PKG_CONFIG"], [
+		AS_IF([test "x$enable_mpeg" = "xno"], [
+				AC_MSG_WARN([[*** MPEG (Lame/MPG123) disabled. ***]])
+			], [
+				AC_CHECK_HEADER(lame/lame.h,
+								lame_header_found="yes",
+								lame_header_found="no")
+				AC_SEARCH_LIBS(lame_set_VBR_q, [lame mp3lame], [lame_lib_found="yes"], [lame_lib_found="no"])
+				AS_IF([test "x$lame_lib_found$lame_header_found" = "xyesyes"], [
+						ac_cv_lame="yes"
+					], [
+						AC_MSG_WARN([["MPEG support selected but external Lame library cannot be found.]])
+					])
+
+				PKG_CHECK_MOD_VERSION([MPG123], [libmpg123 >= 1.25.10], [
+						ac_cv_mpg123="yes"
+					], [
+						AC_MSG_WARN([["MPEG support selected but external MPG123 library cannot be found.]])
+					])
+
+				AS_IF([test "x$ac_cv_lame$ac_cv_mpg123" = "xyesyes"], [
+						enable_mpeg="yes"
+						HAVE_MPEG=1
+						EXTERNAL_MPEG_REQUIRE="libmpg123"
+						EXTERNAL_MPEG_LIBS="-lmp3lame"
+						MPEG_CFLAGS="$MPG123_CFLAGS"
+						MPEG_LIBS="$MPG123_LIBS"
+					], [
+						enable_mpeg="no"
+						AS_ECHO([""])
+						AC_MSG_WARN([[*** MPEG support disabled.]])
+						AS_ECHO([""])
+					])
+			])
+	])
+
+AC_DEFINE_UNQUOTED([HAVE_MPEG], [$HAVE_MPEG], [Will be set to 1 if lame, mpg123 mpeg support is available.])
 
 dnl ====================================================================================
 dnl  Check for libsqlite3 (only used in regtest).
@@ -587,11 +640,6 @@ AC_LANG_PUSH([C++])
 AX_APPEND_COMPILE_FLAGS([${common_flags} -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wreorder -Wsign-promo], [CXXFLAGS])
 AC_LANG_POP([C++])
 
-AS_IF([test "x$enable_stack_smash_protection" = "xyes"], [
-		XIPH_GCC_STACK_PROTECTOR
-		XIPH_GXX_STACK_PROTECTOR
-	])
-
 AS_IF([test "x$enable_test_coverage" = "xyes"], [
 		AX_APPEND_COMPILE_FLAGS([-coverage], [CFLAGS])
 	])
@@ -644,7 +692,7 @@ AS_IF([test "$HOST_TRIPLET" = "x86_64-w64-mingw32"], [
 		OS_SPECIFIC_LINKS=" -static-libgcc $OS_SPECIFIC_LINKS"
 	])
 
-WIN_RC_VERSION=`echo $PACKAGE_VERSION | $SED -e "s/p.*//" -e "s/\./,/g"`
+WIN_RC_VERSION=`echo $PACKAGE_VERSION | $SED -e "s/pre.*//" -e "s/beta.*//" -e "s/\./,/g"`
 
 
 AS_IF([test "x$enable_static" = "xno"], [
@@ -663,7 +711,8 @@ AC_SUBST(HTML_BGCOLOUR)
 AC_SUBST(HTML_FGCOLOUR)
 
 AC_SUBST(SHLIB_VERSION_ARG)
-AC_SUBST(SHARED_VERSION_INFO)
+AC_SUBST([SHARED_VERSION_INFO], [lt_current:lt_revision:lt_age])
+AC_SUBST([ABI_VERSION], [abi_version_major.abi_version_minor.abi_version_patch])
 AC_SUBST(CLEAN_VERSION)
 AC_SUBST(VERSION_MAJOR)
 AC_SUBST(GEN_TOOL)
@@ -671,6 +720,7 @@ AC_SUBST(GEN_TOOL)
 AC_SUBST(WIN_RC_VERSION)
 
 AC_SUBST(HAVE_EXTERNAL_XIPH_LIBS)
+AC_SUBST(HAVE_MPEG)
 AC_SUBST(OS_SPECIFIC_CFLAGS)
 AC_SUBST(OS_SPECIFIC_LINKS)
 AC_SUBST(SNDIO_LIBS)
@@ -678,6 +728,11 @@ AC_SUBST(SNDIO_LIBS)
 AC_SUBST(EXTERNAL_XIPH_CFLAGS)
 AC_SUBST(EXTERNAL_XIPH_LIBS)
 AC_SUBST(EXTERNAL_XIPH_REQUIRE)
+AC_SUBST(EXTERNAL_MPEG_REQUIRE)
+AC_SUBST(MPG123_CFLAGS)
+AC_SUBST(MPG123_LIBS)
+AC_SUBST(MPEG_CFLAGS)
+AC_SUBST(MPEG_LIBS)
 AC_SUBST(SRC_BINDIR)
 AC_SUBST(TEST_BINDIR)
 
@@ -723,6 +778,7 @@ AC_MSG_RESULT([
     Experimental code : ................... ${enable_experimental:-no}
     Using ALSA in example programs : ...... ${enable_alsa:-no}
     External FLAC/Ogg/Vorbis/Opus : ....... ${enable_external_libs:-no}
+    External MPEG Lame/MPG123 : ........... ${enable_mpeg:-no}
     Building Octave interface : ........... ${OCTAVE_BUILD}
 
   Tools :
@@ -731,7 +787,6 @@ AC_MSG_RESULT([
     CXX Compiler Vendor is : .............. ${ax_cv_cxx_compiler_vendor} (${ax_cv_cxx_compiler_version})
 
     Sanitizer enabled : ................... ${enable_sanitizer:-no}
-    Stack smash protection : .............. ${enable_stack_smash_protection:-no}
 
   Installation directories :
 

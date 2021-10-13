@@ -15,7 +15,7 @@ if (POLICY CMP0091)
 	endif ()
 endif ()
 
-project(libsndfile VERSION 1.0.30)
+project(libsndfile VERSION 1.1.0)
 
 #
 # Variables
@@ -29,7 +29,7 @@ set (PACKAGE_NAME ${PROJECT_NAME})
 set (CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set (CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set (CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
-set (CPACK_PACKAGE_VERSION_STAGE "")
+set (CPACK_PACKAGE_VERSION_STAGE "beta1")
 set (CPACK_PACKAGE_VERSION_FULL "${PROJECT_VERSION}${CPACK_PACKAGE_VERSION_STAGE}")
 
 #
@@ -78,6 +78,7 @@ include(SndFileChecks)
 
 cmake_dependent_option (BUILD_REGTEST "Build regtest" ON "SQLITE3_FOUND" OFF)
 cmake_dependent_option (ENABLE_EXTERNAL_LIBS "Enable FLAC, Vorbis, and Opus codecs" ON "Vorbis_FOUND;FLAC_FOUND;OPUS_FOUND" OFF)
+cmake_dependent_option (ENABLE_MPEG "Enable MPEG codecs" ON "HAVE_MPEG_LIBS" OFF)
 cmake_dependent_option (ENABLE_CPU_CLIP "Enable tricky cpu specific clipper" ON "CPU_CLIPS_POSITIVE;CPU_CLIPS_NEGATIVE" OFF)
 if (NOT ENABLE_CPU_CLIP)
 	set (CPU_CLIPS_POSITIVE FALSE)
@@ -104,11 +105,12 @@ set (HAVE_ALSA_ASOUNDLIB_H ${ALSA_FOUND})
 set (HAVE_SNDIO_H ${SNDIO_FOUND})
 
 set (ENABLE_EXPERIMENTAL_CODE ${ENABLE_EXPERIMENTAL})
+set (HAVE_MPEG ${ENABLE_MPEG})
 set (HAVE_SPEEX ${ENABLE_EXPERIMENTAL})
-set (HAVE_OPUS ${ENABLE_EXPERIMENTAL})
 
 add_feature_info (BUILD_SHARED_LIBS BUILD_SHARED_LIBS "build shared libraries")
 add_feature_info (ENABLE_EXTERNAL_LIBS ENABLE_EXTERNAL_LIBS "enable FLAC, Vorbis, and Opus codecs")
+add_feature_info (ENABLE_MPEG ENABLE_MPEG "enable MPEG audio (including mp3) codecs")
 add_feature_info (ENABLE_EXPERIMENTAL ENABLE_EXPERIMENTAL "enable experimental code")
 add_feature_info (BUILD_TESTING BUILD_TESTING "build tests")
 add_feature_info (BUILD_REGTEST BUILD_REGTEST "build regtest")
@@ -146,6 +148,18 @@ set_package_properties (FLAC PROPERTIES
 	URL "www.xiph.org/flac/"
 	DESCRIPTION "Free Lossless Audio Codec Library"
 	PURPOSE "Enables FLAC support"
+	)
+set_package_properties (Lame PROPERTIES
+	TYPE RECOMMENDED
+	URL "https://lame.sourceforge.io/"
+	DESCRIPTION "High quality MPEG Audio Layer III (MP3) encoder"
+	PURPOSE "Enables MPEG layer III (MP3) writing support"
+	)
+set_package_properties (MPG123 PROPERTIES
+	TYPE RECOMMENDED
+	URL "https://www.mpg123.de/"
+	DESCRIPTION "MPEG Audio Layer I/II/III decoder"
+	PURPOSE "Enables MPEG Audio reading support"
 	)
 set_package_properties(Opus PROPERTIES
 	TYPE RECOMMENDED
@@ -194,6 +208,23 @@ if (INSTALL_PKGCONFIG_MODULE)
 		set (EXTERNAL_XIPH_REQUIRE "flac ogg vorbis vorbisenc opus")
 		if (ENABLE_EXPERIMENTAL)
 			set (EXTERNAL_XIPH_REQUIRE "${EXTERNAL_XIPH_REQUIRE} speex")
+		endif ()
+	endif ()
+	if (ENABLE_MPEG)
+		set (EXTERNAL_MPEG_REQUIRE "libmpg123")
+		get_filename_component(LAME_WE ${LAME_LIBRARY} NAME_WE)
+		if (LAME_HIP_LIBRARY)
+			get_filename_component(LAME_HIP_WE ${LAME_HIP_LIBRARY} NAME_WE)
+		endif ()
+		if (CMAKE_IMPORT_LIBRARY_PREFIX)
+			string (REGEX REPLACE "^${CMAKE_IMPORT_LIBRARY_PREFIX}" "" LAME_WE_NO_PREFIX ${LAME_WE})
+			if (LAME_HIP_LIBRARY)
+				string (REGEX REPLACE "^${CMAKE_IMPORT_LIBRARY_PREFIX}" "" LAME_HIP_WE_NO_PREFIX ${LAME_HIP_WE})
+			endif ()
+		endif ()
+		set (EXTERNAL_MPEG_LIBS "-l${LAME_WE_NO_PREFIX}")
+		if (LAME_HIP_LIBRARY)
+			set (EXTERNAL_MPEG_LIBS "${MPEG_LIBS} -l${LAME_HIP_WE}")
 		endif ()
 	endif ()
 
@@ -247,6 +278,7 @@ add_library (sndfile
 	src/ogg.c
 	src/chanmap.h
 	src/chanmap.c
+	src/id3.h
 	src/id3.c
 	$<$<BOOL:${WIN32}>:src/windows.c>
 	src/sndfile.c
@@ -284,8 +316,12 @@ add_library (sndfile
 	src/ogg_speex.c
 	src/ogg_pcm.c
 	src/ogg_opus.c
+	src/ogg_vcomment.h
 	src/ogg_vcomment.c
 	src/nms_adpcm.c
+	src/mpeg.c
+	src/mpeg_decode.c
+	src/mpeg_l3_encode.c
 	src/GSM610/config.h
 	src/GSM610/gsm.h
 	src/GSM610/gsm610_priv.h
@@ -349,6 +385,8 @@ target_link_libraries (sndfile
 		$<$<BOOL:${HAVE_EXTERNAL_XIPH_LIBS}>:FLAC::FLAC>
 		$<$<AND:$<BOOL:${ENABLE_EXPERIMENTAL}>,$<BOOL:${HAVE_EXTERNAL_XIPH_LIBS}>,$<BOOL:${HAVE_SPEEX}>>:Speex::Speex>
 		$<$<BOOL:${HAVE_EXTERNAL_XIPH_LIBS}>:Opus::opus>
+		$<$<BOOL:${HAVE_MPEG}>:MPG123::libmpg123>
+		$<$<BOOL:${HAVE_MPEG}>:Lame::Lame>
 	)
 set_target_properties (sndfile PROPERTIES
 	PUBLIC_HEADER "${sndfile_HDRS}"
@@ -368,6 +406,28 @@ endif ()
 
 if (BUILD_SHARED_LIBS)
 
+	#
+	# ABI version of library.
+	#
+
+	#
+	# Read libtool version from `configure.ac` and set libsndfile ABI version:
+	#
+	#   SNDFILE_ABI_VERSION_MAJOR
+	#   SNDFILE_ABI_VERSION_MINOR
+	#   SNDFILE_ABI_VERSION_PATCH
+	#   SNDFILE_ABI_VERSION
+	#
+	# and Mach-O current and compatibility versions:
+	#
+	#   SNDFILE_MACHO_CURRENT_VERSION
+	#   SNDFILE_MACHO_COMPATIBILITY_VERSION
+	#
+
+	include (SetupABIVersions)
+
+	setup_abi_versions()
+
 	if (WIN32)
 		set (VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR})
 		set (GEN_TOOL cmake)
@@ -380,10 +440,22 @@ if (BUILD_SHARED_LIBS)
 		target_sources (sndfile PRIVATE ${PROJECT_BINARY_DIR}/src/version-metadata.rc)
 	endif ()
 
+
 	set_target_properties (sndfile PROPERTIES
-		SOVERSION ${PROJECT_VERSION_MAJOR}
-		VERSION ${PROJECT_VERSION}
+		SOVERSION ${SNDFILE_ABI_VERSION_MAJOR}
+		VERSION ${SNDFILE_ABI_VERSION}
 		)
+
+	if (APPLE)
+		if (NOT (CMAKE_VERSION VERSION_LESS 3.17))
+			set_target_properties (sndfile PROPERTIES
+				MACHO_CURRENT_VERSION ${SNDFILE_MACHO_CURRENT_VERSION}
+				MACHO_COMPATIBILITY_VERSION ${SNDFILE_MACHO_COMPATIBILITY_VERSION}
+				)
+		else ()
+			message (FATAL_ERROR "Apple platform requires cmake >= 3.17 to build dylib.")
+		endif ()
+	endif ()
 
 	# Symbol files generation
 
@@ -404,7 +476,7 @@ if (BUILD_SHARED_LIBS)
 	if (DEFINED SYMBOL_OS)
 		add_custom_command (
 			OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/${SYMBOL_FILENAME}
-			COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/create_symbols_file.py ${SYMBOL_OS} ${PROJECT_VERSION} > ${CMAKE_CURRENT_BINARY_DIR}/src/${SYMBOL_FILENAME}
+			COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/create_symbols_file.py ${SYMBOL_OS} ${SNDFILE_ABI_VERSION} > ${CMAKE_CURRENT_BINARY_DIR}/src/${SYMBOL_FILENAME}
 			COMMENT "Generating ${SYMBOL_FILENAME}..."
 			)
 
@@ -647,6 +719,11 @@ if (BUILD_EXAMPLES)
 			$<$<BOOL:${LIBM_REQUIRED}>:m>
 		)
 
+# generate
+
+	add_executable (generate examples/generate.c)
+	target_link_libraries (generate PRIVATE sndfile)
+
 # sndfilehandle
 
 	add_executable (sndfilehandle examples/sndfilehandle.cc)
@@ -658,6 +735,7 @@ if (BUILD_EXAMPLES)
 		make_sine
 		sfprocess
 		list_formats
+		generate
 		sndfilehandle
 		)
 
@@ -1181,6 +1259,14 @@ if (BUILD_TESTING)
 			$<$<BOOL:${LIBM_REQUIRED}>:m>
 		)
 
+	add_executable (mpeg_test tests/mpeg_test.c)
+	target_link_libraries (mpeg_test
+		PRIVATE
+			sndfile
+			test_utils
+			$<$<BOOL:${LIBM_REQUIRED}>:m>
+		)
+
 	add_executable (stdin_test tests/stdin_test.c)
 	target_link_libraries (stdin_test
 		PRIVATE
@@ -1412,6 +1498,10 @@ if (BUILD_TESTING)
 	add_test (lossy_comp_test_ogg_opus lossy_comp_test ogg_opus)
 	add_test (string_test_opus string_test opus)
 
+	### mpeg-tests ###
+	add_test (mpeg_test mpeg_test)
+	add_test (compression_size_test_mpeg compression_size_test mpeg)
+
 	### io-tests
 	add_test (stdio_test stdio_test)
 	add_test (pipe_test pipe_test)
@@ -1467,5 +1557,8 @@ if (BUILD_TESTING)
 endif ()
 
 if (ENABLE_CPACK)
+	if ((NOT CPACK_PACKAGE_VERSION) AND CPACK_PACKAGE_VERSION_STAGE)
+		set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_FULL}")
+	endif ()
 	include (CPack)
 endif ()

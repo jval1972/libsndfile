@@ -5,10 +5,20 @@
 libsndfile is a C library for reading and writing files containing sampled audio
 data.
 
+## Authors
+
+The libsndfile project was originally developed and maintained by
+Erik de Castro Lopo <erikd@mega-nerd.com> aka @erikd. The project was developed
+on Github at <https://github.com/erikd/libsndfile>.
+
+After the release of version 1.0.30, @erikd transferred the project to
+[the libsndfile team](https://github.com/libsndfile), see [AUTHORS](AUTHORS)
+for details.
+
 ## Hacking
 
 The canonical source code repository for libsndfile is at
-[http://libsndfile.github.io/libsndfile/][github].
+<https://github.com/libsndfile/libsndfile>.
 
 You can grab the source code using:
 
@@ -23,14 +33,15 @@ below.
 Setting up a build environment for libsndfile on Debian or Ubuntu is as simple as:
 
     sudo apt install autoconf autogen automake build-essential libasound2-dev \
-      libflac-dev libogg-dev libtool libvorbis-dev libopus-dev pkg-config python
+      libflac-dev libogg-dev libtool libvorbis-dev libopus-dev libmp3lame-dev \
+      libmpg123-dev pkg-config python
 
 For other Linux distributions or any of the *BSDs, the setup should be similar
 although the package install tools and package names may be slightly different.
 
 Similarly on Mac OS X, assuming [brew] is already installed:
 
-    brew install autoconf autogen automake flac libogg libtool libvorbis opus pkg-config
+    brew install autoconf autogen automake flac libogg libtool libvorbis opus mpg123 pkg-config
 
 Once the build environment has been set up, building and testing libsndfile is
 as simple as:
@@ -124,6 +135,8 @@ You can pass additional options with `/D<parameter>=<value>` when you run
   `ON` by default. Setting `BUILD_SHARED_LIBS` to `ON` disables this option.
 * `ENABLE_EXTERNAL_LIBS` - enable Ogg, Vorbis, FLAC and Opus support. This
   option is available and set to `ON` if all dependency libraries were found.
+* `ENABLE_MPEG` - MP3 support. This option is available and set to `ON` if all
+  dependency libraries were found.
 * `ENABLE_CPU_CLIP` - enable tricky cpu specific clipper. Enabled and set to
   `ON` when CPU clips negative\positive. Don't touch it if you are not sure
 * `ENABLE_BOW_DOCS` - enable black-on-white documentation theme, `OFF` by
@@ -222,7 +235,7 @@ You can find related option in Visual Studio project properties:
 
     C/C++ -> Code Generation -> Runtime Library
 
-Dynamic version of system CRT library is defaut and it means that end user needs
+Dynamic version of system CRT library is default and it means that end user needs
 to have the same runtime library installed on his system. Most likely it is so,
 but if it is not, the user will see this error message using libsndfile DLL:
 
@@ -266,6 +279,7 @@ libvorbis, libflac and libopus libraries:
     vcpkg install libogg:x64-windows-static libvorbis:x64-windows-static
     libflac:x64-windows-static opus:x64-windows-static libogg:x86-windows-static
     libvorbis:x86-windows-static libflac:x86-windows-static opus:x86-windows-static
+    mp3lame:x86-windows-static mpg123:x86-windows-static
 
 Then and add this parameter to cmake command line:
 

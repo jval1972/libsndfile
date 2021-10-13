@@ -33,6 +33,11 @@
 #include <io.h>
 #endif
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #define		SNDFILE_MAGICK	0x1234C0DE
 
 #ifdef __APPLE__
@@ -277,7 +282,18 @@ ErrorStruct SndfileErrors [] =
 	{	SFE_FILENAME_TOO_LONG	, "Error : Supplied filename too long." },
 	{	SFE_NEGATIVE_RW_LEN		, "Error : Length parameter passed to read/write is negative." },
 
-	{	SFE_OPUS_BAD_SAMPLERATE	, "Error : Opus only supports sample rates of 8000, 12000, 16000, 24000 and 48000." },
+	{	SFE_OPUS_BAD_SAMPLERATE	, "Error : Opus only supports sample rates of 8000, 12000, 16000, 24000, and 48000." },
+
+	{	SFE_MPEG_BAD_SAMPLERATE	, "Error : MPEG-1/2/2.5 only supports sample rates of 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, and 48000." },
+
+	{	SFE_CAF_NOT_CAF			, "Error : Not a CAF file." },
+	{	SFE_CAF_NO_DESC			, "Error : No 'desc' marker in CAF file." },
+	{	SFE_CAF_BAD_PEAK		, "Error : Bad 'PEAK' chunk in CAF file." },
+
+	{	SFE_AVR_NOT_AVR			, "Error : Not an AVR file." },
+	{	SFE_AVR_BAD_REZ_SIGN	, "Error : Bad rez/sign combination." },
+
+	{	SFE_MPC_NO_MARKER		, "Error : No marker in MPC2K file." },
 
 	{	SFE_MAX_ERROR			, "Maximum error number." },
 	{	SFE_MAX_ERROR + 1		, NULL }
@@ -291,7 +307,6 @@ static int	guess_file_type (SF_PRIVATE *psf) ;
 static int	validate_sfinfo (SF_INFO *sfinfo) ;
 static int	validate_psf (SF_PRIVATE *psf) ;
 static void	save_header_info (SF_PRIVATE *psf) ;
-static int	copy_filename (SF_PRIVATE *psf, const char *path) ;
 static int	psf_close (SF_PRIVATE *psf) ;
 
 static int	try_resource_fork (SF_PRIVATE * psf) ;
@@ -332,6 +347,14 @@ static char	sf_syserr [SF_SYSERR_LEN] = { 0 } ;
 SNDFILE*
 sf_open	(const char *path, int mode, SF_INFO *sfinfo)
 {	SF_PRIVATE 	*psf ;
+	const char *utf8path_ptr ;
+#ifdef _WIN32
+	LPWSTR wpath ;
+	int nResult ;
+	int wpath_len ;
+	char utf8path [SF_FILENAME_LEN] ;
+	DWORD dwError ;
+#endif
 
 	/* Ultimate sanity check. */
 	assert (sizeof (sf_count_t) == 8) ;
@@ -345,8 +368,62 @@ sf_open	(const char *path, int mode, SF_INFO *sfinfo)
 
 	psf_log_printf (psf, "File : %s\n", path) ;
 
-	if (copy_filename (psf, path) != 0)
+#ifdef _WIN32
+	nResult = MultiByteToWideChar (CP_ACP, 0, path, -1, NULL, 0) ;
+	if (nResult == 0)
+	{	sf_errno = SF_ERR_UNSUPPORTED_ENCODING ;
+		psf_close (psf) ;
+		return NULL ;
+		} ;
+
+	wpath_len = nResult ;
+	wpath = malloc (wpath_len * sizeof (WCHAR)) ;
+	if (!wpath)
+	{	sf_errno = SFE_MALLOC_FAILED ;
+		psf_close (psf) ;
+		return NULL ;
+		} ;
+
+	nResult = MultiByteToWideChar (CP_ACP, 0, path, -1, wpath, wpath_len) ;
+	if (nResult == 0)
+	{	sf_errno = SF_ERR_UNSUPPORTED_ENCODING ;
+		free (wpath) ;
+		psf_close (psf) ;
+		return NULL ;
+		} ;
+
+	nResult = WideCharToMultiByte (CP_UTF8, 0, wpath, wpath_len, NULL, 0, NULL,
+		NULL) ;
+	if (nResult == 0)
+	{	sf_errno = SF_ERR_UNSUPPORTED_ENCODING ;
+		free (wpath) ;
+		psf_close (psf) ;
+		return NULL ;
+		} ;
+
+	nResult = WideCharToMultiByte (CP_UTF8, 0, wpath, wpath_len, utf8path,
+		SF_FILENAME_LEN, NULL, NULL) ;
+
+	free (wpath) ;
+
+	if (nResult == 0)
+	{	dwError = GetLastError () ;
+		if (dwError == ERROR_INSUFFICIENT_BUFFER)
+			sf_errno = SFE_FILENAME_TOO_LONG ;
+		else
+			sf_errno = SF_ERR_UNSUPPORTED_ENCODING ;
+		psf_close (psf) ;
+		return NULL ;
+		} ;
+
+	utf8path_ptr = utf8path ;
+#else
+	utf8path_ptr = path ;
+#endif
+
+	if (psf_copy_filename (psf, utf8path_ptr) != 0)
 	{	sf_errno = psf->error ;
+		psf_close (psf) ;
 		return	NULL ;
 		} ;
 
@@ -381,7 +458,7 @@ sf_open_fd	(int fd, int mode, SF_INFO *sfinfo, int close_desc)
 		} ;
 
 	psf_init_files (psf) ;
-	copy_filename (psf, "") ;
+	psf_copy_filename (psf, "") ;
 
 	psf->file.mode = mode ;
 	psf_set_file (psf, fd) ;
@@ -884,6 +961,15 @@ sf_format_check	(const SF_INFO *info)
 				if (subformat == SF_FORMAT_FLOAT || subformat == SF_FORMAT_DOUBLE)
 					return 1 ;
 				break ;
+
+		case SF_FORMAT_MPEG :
+				if (info->channels > 2)
+					return 0 ;
+				if (endian != SF_ENDIAN_FILE)
+					return 0 ;
+				if (subformat == SF_FORMAT_MPEG_LAYER_I || subformat == SF_FORMAT_MPEG_LAYER_II || subformat == SF_FORMAT_MPEG_LAYER_III)
+					return 1 ;
+				break ;
 		default : break ;
 		} ;
 
@@ -1226,7 +1312,7 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 				return SF_FALSE ;
 				} ;
 
-			if (NOT (broadcast_var_set (psf, data, datasize)))
+			if (!broadcast_var_set (psf, data, datasize))
 				return SF_FALSE ;
 
 			if (psf->write_header)
@@ -1255,7 +1341,7 @@ sf_command	(SNDFILE *sndfile, int command, void *data, int datasize)
 			{	psf->error = SFE_CMD_HAS_DATA ;
 				return SF_FALSE ;
 				} ;
-			if (NOT (cart_var_set (psf, data, datasize)))
+			if (!cart_var_set (psf, data, datasize))
 				return SF_FALSE ;
 			if (psf->write_header)
 				psf->write_header (psf, SF_TRUE) ;
@@ -2612,7 +2698,7 @@ try_resource_fork (SF_PRIVATE * psf)
 		} ;
 
 	/* More checking here. */
-	psf_log_printf (psf, "Resource fork : %s\n", psf->rsrc.path.c) ;
+	psf_log_printf (psf, "Resource fork : %s\n", psf->rsrc.path) ;
 
 	return SF_FORMAT_SD2 ;
 } /* try_resource_fork */
@@ -2623,7 +2709,7 @@ format_from_extension (SF_PRIVATE *psf)
 	char buffer [16] ;
 	int format = 0 ;
 
-	if ((cptr = strrchr (psf->file.name.c, '.')) == NULL)
+	if ((cptr = strrchr (psf->file.name, '.')) == NULL)
 		return 0 ;
 
 	cptr ++ ;
@@ -2668,6 +2754,13 @@ format_from_extension (SF_PRIVATE *psf)
 		psf->sf.samplerate = 8000 ;
 		format = SF_FORMAT_RAW | SF_FORMAT_GSM610 ;
 		}
+	else if (strcmp (cptr, "mp3") == 0)
+	{	/*
+		 * MPEG streams are quite tollerate of crap. If we couldn't identify a
+		 * MP3 stream, but it has a .mp3 extension, let libmpg123 have a try.
+		 */
+		format = SF_FORMAT_MPEG ;
+		}
 
 	/* For RAW files, make sure the dataoffset if set correctly. */
 	if ((SF_CONTAINER (format)) == SF_FORMAT_RAW)
@@ -2680,6 +2773,7 @@ static int
 guess_file_type (SF_PRIVATE *psf)
 {	uint32_t buffer [3], format ;
 
+retry:
 	if (psf_binheader_readf (psf, "b", &buffer, SIGNED_SIZEOF (buffer)) != SIGNED_SIZEOF (buffer))
 	{	psf->error = SFE_BAD_FILE_READ ;
 		return 0 ;
@@ -2776,11 +2870,18 @@ guess_file_type (SF_PRIVATE *psf)
 	if (buffer [0] == MAKE_MARKER ('R', 'F', '6', '4') && buffer [2] == MAKE_MARKER ('W', 'A', 'V', 'E'))
 		return SF_FORMAT_RF64 ;
 
+	if ((buffer [0] & MAKE_MARKER (0xFF, 0xE0, 0, 0)) == MAKE_MARKER (0xFF, 0xE0, 0, 0) && /* Frame sync */
+		(buffer [0] & MAKE_MARKER (0, 0x18, 0, 0)) != MAKE_MARKER (0, 0x08, 0, 0) && /* Valid MPEG version */
+		(buffer [0] & MAKE_MARKER (0, 0x06, 0, 0)) != MAKE_MARKER (0, 0, 0, 0) && /* Valid layer description */
+		(buffer [0] & MAKE_MARKER (0, 0, 0xF0, 0)) != MAKE_MARKER (0, 0, 0xF0, 0) && /* Valid bitrate */
+		(buffer [0] & MAKE_MARKER (0, 0, 0x0C, 0)) != MAKE_MARKER (0, 0, 0x0C, 0)) /* Valid samplerate */
+		return SF_FORMAT_MPEG ;
+
 	if (buffer [0] == MAKE_MARKER ('I', 'D', '3', 2) || buffer [0] == MAKE_MARKER ('I', 'D', '3', 3)
 			|| buffer [0] == MAKE_MARKER ('I', 'D', '3', 4))
 	{	psf_log_printf (psf, "Found 'ID3' marker.\n") ;
 		if (id3_skip (psf))
-			return guess_file_type (psf) ;
+			goto retry ;
 		return 0 ;
 		} ;
 
@@ -2805,11 +2906,11 @@ guess_file_type (SF_PRIVATE *psf)
 
 static int
 validate_sfinfo (SF_INFO *sfinfo)
-{	if (sfinfo->samplerate < 1)
+{	if ((sfinfo->samplerate < 1) || (sfinfo->samplerate > SF_MAX_SAMPLERATE))
 		return 0 ;
 	if (sfinfo->frames < 0)
 		return 0 ;
-	if (sfinfo->channels < 1)
+	if ((sfinfo->channels < 1) || (sfinfo->channels > SF_MAX_CHANNELS))
 		return 0 ;
 	if ((SF_CONTAINER (sfinfo->format)) == 0)
 		return 0 ;
@@ -2843,34 +2944,6 @@ static void
 save_header_info (SF_PRIVATE *psf)
 {	snprintf (sf_parselog, sizeof (sf_parselog), "%s", psf->parselog.buf) ;
 } /* save_header_info */
-
-static int
-copy_filename (SF_PRIVATE *psf, const char *path)
-{	const char *ccptr ;
-	char *cptr ;
-
-	if (strlen (path) > 1 && strlen (path) - 1 >= sizeof (psf->file.path.c))
-	{	psf->error = SFE_FILENAME_TOO_LONG ;
-		return psf->error ;
-		} ;
-
-	snprintf (psf->file.path.c, sizeof (psf->file.path.c), "%s", path) ;
-	if ((ccptr = strrchr (path, '/')) || (ccptr = strrchr (path, '\\')))
-		ccptr ++ ;
-	else
-		ccptr = path ;
-
-	snprintf (psf->file.name.c, sizeof (psf->file.name.c), "%s", ccptr) ;
-
-	/* Now grab the directory. */
-	snprintf (psf->file.dir.c, sizeof (psf->file.dir.c), "%s", path) ;
-	if ((cptr = strrchr (psf->file.dir.c, '/')) || (cptr = strrchr (psf->file.dir.c, '\\')))
-		cptr [1] = 0 ;
-	else
-		psf->file.dir.c [0] = 0 ;
-
-	return 0 ;
-} /* copy_filename */
 
 /*==============================================================================
 */
@@ -3185,6 +3258,10 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 				error = mpc2k_open (psf) ;
 				break ;
 
+		case	SF_FORMAT_MPEG :
+				error = mpeg_open (psf) ;
+				break ;
+
 		/* Lite remove end */
 
 		default :
@@ -3205,6 +3282,7 @@ psf_open_file (SF_PRIVATE *psf, SF_INFO *sfinfo)
 				/* Actual embedded files. */
 				break ;
 
+			case SF_FORMAT_MPEG :
 			case SF_FORMAT_FLAC :
 				/* Flac with an ID3v2 header? */
 				break ;
