@@ -548,7 +548,6 @@ mpeg_decoder_init (SF_PRIVATE *psf)
 	mpg123_param (pmp3d->pmh, MPG123_ADD_FLAGS, MPG123_NO_FRANKENSTEIN, 1.0) ;
 #endif
 
-	psf->dataoffset = 0 ;
 	/*
 	** Need to pass the first MPEG frame to libmpg123, but that frame was read
 	** into psf->binheader in order that we could identify the stream.
@@ -558,8 +557,8 @@ mpeg_decoder_init (SF_PRIVATE *psf)
 		** Can't seek, so setup our libmpg123 io callbacks to read the binheader
 		** buffer first.
 		*/
-		psf_binheader_readf (psf, "p", 0) ;
-		pmp3d->header_remaining = psf_binheader_readf (psf, NULL) ;
+		psf_binheader_readf (psf, "p", psf->dataoffset) ;
+		pmp3d->header_remaining = psf_binheader_readf (psf, NULL) - psf->dataoffset ;
 
 		/* Tell libmpg123 we can't seek the file. */
 		mpg123_param (pmp3d->pmh, MPG123_ADD_FLAGS, MPG123_NO_PEEK_END, 1.0) ;
@@ -609,11 +608,6 @@ mpeg_decoder_init (SF_PRIVATE *psf)
 	psf->byterate	= mpeg_dec_byterate ;
 
 	mpeg_decoder_read_strings (psf) ;
-
-	if (psf->filelength != SF_COUNT_MAX)
-		psf->datalength = psf->filelength - psf->dataoffset ;
-	else
-		psf->datalength = SF_COUNT_MAX ;
 
 	return 0 ;
 } /* mpeg_decoder_init */
