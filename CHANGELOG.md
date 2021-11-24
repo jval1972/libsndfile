@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * This `CHANGELOG.md`. All notable changes to this project will be documented in
   this file. The old `NEWS` file has been renamed to `NEWS.OLD` and is no longer
   updated.
+* Add support for decoding MPEG III Audio in WAV files.
+* `SECURITY.md` file to give people instructions for reporting security
+  vulnerabilities, thanks @zidingz.
+* Support for [Vcpkg manifest mode](https://vcpkg.readthedocs.io/en/latest/users/manifests/).
+
+  If you have problems with manifest mode, disable it with `VCPKG_MANIFEST_MODE`
+  switch.
 
 ### Changed
 
@@ -64,10 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The behavior of the functions for opening files on other platforms does not
   change.
 * Switch to .xz over .bz2 for release tarballs.
+* Disable static builds using Autotools by default. If you want static
+  libraries, pass --enable-static to ./configure
 
 ### Fixed
 
 * Typo in `docs/index.md`.
+* Typo in `programs/sndfile-convert.c`, thanks @fjl.
 * Memory leak in `caf_read_header`(), credit to OSS-Fuzz ([issue 30375](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=30375)).
 * Stack overflow in `guess_file_type`(), thanks @bobsayshilol, credit to
   OSS-Fuzz ([issue 29339](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=29339)).
@@ -85,6 +95,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([issue 27366](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=27366)).
 * Integer overflow in `nms_adpcm_update`(), credit to OSS-Fuzz
   ([issue 25522](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25522)).
+* Integer overflow in `psf_log_printf`(), credit to OSS-Fuzz
+  ([issue 28441](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=28441)),
+  ([issue 25624](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25624)).
 * ABI version incompatibility between Autotools and CMake build on Apple
   platforms.
 
@@ -108,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Heap buffer overflow in `flac_buffer_copy`(), thanks @yuawn,  @bobsayshilol.
 * Heap buffer overflow in `copyPredictorTo24`(), thanks @bobsayshilol,
   credit to OSS-Fuzz ([issue 27503](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=27503)).
-
+* Uninitialized variable in `psf_binheader_readf`(), thanks @shao-hua-li,
+  credit to OSS-Fuzz ([issue 25364](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25364)).
 
 [Unreleased]: https://github.com/libsndfile/libsndfile/compare/1.0.31...HEAD
