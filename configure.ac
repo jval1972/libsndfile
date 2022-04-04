@@ -1,9 +1,9 @@
-dnl Copyright (C) 1999-2021  Erik de Castro Lopo <erikd@mega-nerd.com>.
+dnl Copyright (C) 1999-2022  Erik de Castro Lopo <erikd@mega-nerd.com>.
 
 dnl Require autoconf version >= 2.69
 AC_PREREQ([2.69])
 
-AC_INIT([libsndfile],[1.1.0beta2],[sndfile@mega-nerd.com],
+AC_INIT([libsndfile],[1.1.0],[sndfile@mega-nerd.com],
 		[libsndfile],[http://libsndfile.github.io/libsndfile/])
 
 dnl Check whether we want to set defaults for CFLAGS, CXXFLAGS, CPPFLAGS and LDFLAGS
@@ -88,7 +88,7 @@ dnl      to 0.
 dnl   This is libtool version of library, we add it to `--version-info` property.
 
 m4_define([lt_current], [1])
-m4_define([lt_revision], [33])
+m4_define([lt_revision], [34])
 m4_define([lt_age], [0])
 
 dnl This is ABI version for linker scripts, CMake uses the same format for
@@ -633,11 +633,22 @@ AS_IF([test "x$enable_werror" = "xyes"], [
 		AC_LANG_POP([C++])
 	])
 
-common_flags="-Wall -Wextra -Wpointer-arith -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wundef -Wuninitialized -Winit-self -Wno-format-truncation"
-AX_APPEND_COMPILE_FLAGS([${common_flags} -Wvla -Wbad-function-cast -Wnested-externs -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Waggregate-return], [CFLAGS])
+common_flags="-Wall -Wextra -Wpointer-arith -Wcast-align -Wcast-qual -Wshadow -Wwrite-strings -Wundef -Wuninitialized -Winit-self"
+common_cflags="${common_flags}"
+dnl Clang doesn't know about -Wno-format-truncation
+dnl and would spew tons of warnings otherwise.
+AS_IF([test "x$ax_cv_c_compiler_vendor" = "xgnu"], [
+		common_cflags+=" -Wno-format-truncation"
+	])
+common_cxxflags="${common_flags}"
+AS_IF([test "x$ax_cv_cxx_compiler_vendor" = "xgnu"], [
+		common_cxxflags+=" -Wno-format-truncation"
+	])
+
+AX_APPEND_COMPILE_FLAGS([${common_cflags} -Wvla -Wbad-function-cast -Wnested-externs -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Waggregate-return], [CFLAGS])
 
 AC_LANG_PUSH([C++])
-AX_APPEND_COMPILE_FLAGS([${common_flags} -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wreorder -Wsign-promo], [CXXFLAGS])
+AX_APPEND_COMPILE_FLAGS([${common_cxxflags} -Wctor-dtor-privacy -Wnon-virtual-dtor -Woverloaded-virtual -Wreorder -Wsign-promo], [CXXFLAGS])
 AC_LANG_POP([C++])
 
 AS_IF([test "x$enable_test_coverage" = "xyes"], [

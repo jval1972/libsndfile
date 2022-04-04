@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+* Searching for LAME dependency with CMake build system (issue #821).
+* CMake build from Autotools tarball (issue #816).
+* Build on UWP platform (isse #824).
+
+## [1.1.0] - 2022-03-27
+
 ### Added
 
 * MPEG Encode/Decode Support.
@@ -41,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   If you have problems with manifest mode, disable it with `VCPKG_MANIFEST_MODE`
   switch.
+* [Export CMake targets from the build tree (PR #802)](https://cmake.org/cmake/help/latest/guide/importing-exporting/index.html#exporting-targets-from-the-build-tree)
+* CIFuzz fuzzer, thanks to @AdamKorcz (PR #796)
 
 ### Changed
 
@@ -124,4 +134,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Uninitialized variable in `psf_binheader_readf`(), thanks @shao-hua-li,
   credit to OSS-Fuzz ([issue 25364](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=25364)).
 
-[Unreleased]: https://github.com/libsndfile/libsndfile/compare/1.0.31...HEAD
+[Unreleased]: https://github.com/libsndfile/libsndfile/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/libsndfile/libsndfile/compare/1.0.31...1.1.0
